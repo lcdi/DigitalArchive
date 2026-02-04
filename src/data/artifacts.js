@@ -7,7 +7,7 @@ export const artifacts = [
     tags: ["animals", "citywork"],
     uploader: "John Doe",
     uploadDate: "2024-01-15",
-    fileType: "image/jpg",
+    fileType: "image/jpeg",
     description: "A sample artifact for testing the archive system",
     dimensions: "1920x1080",
     fileSize: "2.4 MB"
