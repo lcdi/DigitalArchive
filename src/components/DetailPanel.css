@@ -64,6 +64,29 @@
   }
 }
 
+.download-btn-detail {
+  width: 100%;
+  background-color: #00A9E0; /* Bright blue */
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-bottom: 24px;
+}
+
+.download-btn-detail:hover {
+  background-color: #236192; /* Medium blue */
+  transform: translateY(-1px);
+}
+
+.download-btn-detail:active {
+  transform: translateY(0);
+}
+
 .detail-image {
   width: 100%;
   margin-bottom: 24px;
