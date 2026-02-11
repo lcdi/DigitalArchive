@@ -1,0 +1,181 @@
+/* Minimal landing CSS — background only scaffold for rebuilding */
+:root{
+  --bg: #003C5F; /* background */
+  --c1: #002A3A;
+  --c2: #236192;
+  --c3: #00A9E0;
+  --c4: #7ED3EF;
+  --c5: #BEE9F7;
+  --card-bg: rgba(230,230,230,0.95);
+  --rect-width: 140px; /* width used by corner rectangles */
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+}
+
+#root {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+.landing{
+  position: relative; /* allow absolutely positioned children */
+  min-height: 100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: #fff;
+}
+
+/* Container holding the stacked rectangles on the top-right */
+.rect-container{
+  position: fixed;
+  top: 0;
+  /* shift the whole container right so the rightmost rect is half off-screen */
+  right: calc(-1 * (var(--rect-width) / 2));
+  height: 50vh;
+  display: flex;
+  flex-direction: row-reverse; /* start at the right edge */
+  gap: 0; /* no gap between rectangles */
+  z-index: 9999;
+  pointer-events: none;
+  transition: right 320ms ease; /* smooth if we animate later */
+}
+
+.rect{
+  width: var(--rect-width);
+  min-width: 56px;
+  /* height comes from inline CSS var --h so it can vary per-rect */
+  height: var(--h, 100%);
+  /* Rounded semicircular bottom controlled by arc multiplier */
+  border-bottom-left-radius: calc(var(--rect-width) * var(--arc-mult, 0.5));
+  border-bottom-right-radius: calc(var(--rect-width) * var(--arc-mult, 0.5));
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  overflow: visible;
+  position: relative;
+  /* keep subtle drop shadow but without creating visible seams between rects */
+  box-shadow: inset 0 -8px 18px rgba(0,0,0,0.08), 0 10px 22px rgba(0,0,0,0.28);
+}
+
+/* subtle inner arc shadow near the rounded bottom for depth */
+.rect::after{
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(-1 * var(--after-bottom, 12px));
+  width: calc(var(--rect-width) * var(--after-mult, 0.8));
+  height: calc(var(--rect-width) * var(--after-height-mult, 0.2));
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+/* Remove per-child static heights — heights are set via inline CSS vars generated in JSX */
+/* First and second elements are controlled dynamically now; keep no static overrides here. */
+
+
+/* Responsive sizes for the rectangles */
+@media (max-width: 900px){
+  :root{ --rect-width: 120px; }
+}
+
+@media (max-width: 520px){
+  :root{ --rect-width: 96px; }
+}
+
+/* Centered input form for username/password */
+/* Center the form relative to the viewport so it is horizontally and vertically centered */
+.center-form{
+  position: fixed; /* fixed to viewport */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display:flex;
+  flex-direction:column;
+  gap: 16px;
+  align-items:center;
+  z-index: 100000; /* above the drips */
+  width: 420px;
+  max-width: 92vw;
+  padding: 8px 16px;
+}
+
+.input-box{
+  width: 100%;
+  height: 56px;
+  padding: 0 16px; /* left/right padding only - vertical centering via flex */
+  display: flex; /* center text vertically */
+  align-items: center;
+  justify-content: center;
+  text-align: center; /* center text horizontally */
+  border-radius: 8px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(2,12,22,0.25);
+  font-size: 16px;
+  color: #002C3A;
+}
+
+.input-box::placeholder{
+  color: rgba(0,44,58,0.5);
+  text-align: center;
+}
+
+@media (max-width: 520px){
+  .input-box{ height: 48px; font-size: 15px; }
+}
+
+/* Login button */
+.login-btn {
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+  border: none;
+  background: #00A9E0; /* Bright blue */
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(2,12,22,0.25);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.login-btn:hover:not(:disabled) {
+  background: #236192; /* Medium blue */
+  transform: translateY(-2px);
+}
+
+.login-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-btn:disabled {
+  background: rgba(0, 169, 224, 0.5);
+  cursor: not-allowed;
+}
+
+@media (max-width: 520px){
+  .login-btn { height: 48px; font-size: 16px; }
+}
+
+/* visually-hidden but accessible */
+.sr-only{
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Future hero/bars styles will go here when we rebuild */
+
