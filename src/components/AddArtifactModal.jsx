@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './AddArtifactModal.css';
 
-function AddArtifactModal({ isOpen, onClose, onSave }) {
+function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCollectionId = null }) {
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
         // Basic Info
@@ -15,6 +15,7 @@ function AddArtifactModal({ isOpen, onClose, onSave }) {
         fileType: '',
         fileSize: '',
         dimensions: '',
+        collectionId: null,
         
         // Context & Description
         context: '',
@@ -93,6 +94,12 @@ function AddArtifactModal({ isOpen, onClose, onSave }) {
             irbDate: ''
         }
     });
+
+    useEffect(() => {
+        if (isOpen) {
+            setFormData(prev => ({ ...prev, collectionId: targetCollectionId || null }));
+        }
+    }, [isOpen, targetCollectionId]);
 
     const steps = [
         { num: 1, title: 'Basic Info', icon: '📄' },
@@ -185,6 +192,7 @@ function AddArtifactModal({ isOpen, onClose, onSave }) {
             title: formData.title,
             type: formData.type,
             image: formData.imagePreview, // In production, this would be uploaded to server
+            collectionId: formData.collectionId || null,
             tags: formData.tags,
             uploader: formData.uploader || 'Current User',
             uploadDate: new Date().toISOString().split('T')[0],
@@ -223,6 +231,7 @@ function AddArtifactModal({ isOpen, onClose, onSave }) {
             fileType: '',
             fileSize: '',
             dimensions: '',
+            collectionId: null,
             context: '',
             description: '',
             location: { place: '', city: '', state: '', country: '', coordinates: '' },
@@ -380,6 +389,23 @@ function AddArtifactModal({ isOpen, onClose, onSave }) {
                                     onChange={handleInputChange}
                                     placeholder="Your name"
                                 />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Collection (Optional)</label>
+                                <select
+                                    value={formData.collectionId || ''}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        collectionId: e.target.value || null
+                                    }))}
+                                >
+                                    <option value="">No collection — general archive</option>
+                                    {collections.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                                <span className="field-hint">Assign this artifact to a folder, or leave blank to add it to the general archive.</span>
                             </div>
                         </div>
                     )}
