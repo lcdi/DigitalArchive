@@ -22,7 +22,7 @@ html, body, #root {
 }
 
 .landing{
-  position: relative; /* allow absolutely positioned children */
+  position: relative;
   min-height: 100vh;
   display:flex;
   align-items:center;
@@ -30,38 +30,32 @@ html, body, #root {
   color: #fff;
 }
 
-/* Container holding the stacked rectangles on the top-right */
 .rect-container{
   position: fixed;
   top: 0;
-  /* shift the whole container right so the rightmost rect is half off-screen */
   right: calc(-1 * (var(--rect-width) / 2));
   height: 50vh;
   display: flex;
-  flex-direction: row-reverse; /* start at the right edge */
-  gap: 0; /* no gap between rectangles */
+  flex-direction: row-reverse;
+  gap: 0;
   z-index: 9999;
   pointer-events: none;
-  transition: right 320ms ease; /* smooth if we animate later */
+  transition: right 320ms ease;
 }
 
 .rect{
   width: var(--rect-width);
   min-width: 56px;
-  /* height comes from inline CSS var --h so it can vary per-rect */
   height: var(--h, 100%);
-  /* Rounded semicircular bottom controlled by arc multiplier */
   border-bottom-left-radius: calc(var(--rect-width) * var(--arc-mult, 0.5));
   border-bottom-right-radius: calc(var(--rect-width) * var(--arc-mult, 0.5));
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   overflow: visible;
   position: relative;
-  /* keep subtle drop shadow but without creating visible seams between rects */
   box-shadow: inset 0 -8px 18px rgba(0,0,0,0.08), 0 10px 22px rgba(0,0,0,0.28);
 }
 
-/* subtle inner arc shadow near the rounded bottom for depth */
 .rect::after{
   content: '';
   position: absolute;
@@ -76,23 +70,15 @@ html, body, #root {
   pointer-events: none;
 }
 
-/* Remove per-child static heights — heights are set via inline CSS vars generated in JSX */
-/* First and second elements are controlled dynamically now; keep no static overrides here. */
-
-
-/* Responsive sizes for the rectangles */
 @media (max-width: 900px){
   :root{ --rect-width: 120px; }
 }
-
 @media (max-width: 520px){
   :root{ --rect-width: 96px; }
 }
 
-/* Centered input form for username/password */
-/* Center the form relative to the viewport so it is horizontally and vertically centered */
 .center-form{
-  position: fixed; /* fixed to viewport */
+  position: fixed;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -100,7 +86,7 @@ html, body, #root {
   flex-direction:column;
   gap: 16px;
   align-items:center;
-  z-index: 100000; /* above the drips */
+  z-index: 100000;
   width: 420px;
   max-width: 92vw;
   padding: 8px 16px;
@@ -109,11 +95,11 @@ html, body, #root {
 .input-box{
   width: 100%;
   height: 56px;
-  padding: 0 16px; /* left/right padding only - vertical centering via flex */
-  display: flex; /* center text vertically */
+  padding: 0 16px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center; /* center text horizontally */
+  text-align: center;
   border-radius: 8px;
   border: none;
   background: #ffffff;
@@ -131,23 +117,59 @@ html, body, #root {
   .input-box{ height: 48px; font-size: 15px; }
 }
 
-/* Login button */
+/* ── Role toggle ─────────────────────────────────────────── */
+.role-toggle {
+  display: flex;
+  width: 100%;
+  background: rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.role-btn {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.18s, color 0.18s, box-shadow 0.18s;
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+}
+
+.role-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.85);
+}
+
+.role-btn.active {
+  background: #ffffff;
+  color: #003C5F;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* ── Login button ─────────────────────────────────────────── */
 .login-btn {
   width: 100%;
   height: 56px;
   border-radius: 8px;
   border: none;
-  background: #00A9E0; /* Bright blue */
+  background: #00A9E0;
   color: white;
   font-size: 18px;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   box-shadow: 0 10px 30px rgba(2,12,22,0.25);
   transition: background-color 0.2s, transform 0.1s;
 }
 
 .login-btn:hover:not(:disabled) {
-  background: #236192; /* Medium blue */
+  background: #236192;
   transform: translateY(-2px);
 }
 
@@ -164,7 +186,6 @@ html, body, #root {
   .login-btn { height: 48px; font-size: 16px; }
 }
 
-/* visually-hidden but accessible */
 .sr-only{
   position: absolute !important;
   width: 1px;
@@ -176,6 +197,3 @@ html, body, #root {
   white-space: nowrap;
   border: 0;
 }
-
-/* Future hero/bars styles will go here when we rebuild */
-
