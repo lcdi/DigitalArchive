@@ -6,6 +6,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
     const [formData, setFormData] = useState({
         // Basic Info
         title: '',
+        type: '',
         image: null,
         imagePreview: '',
         tags: [],
@@ -110,6 +111,15 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
         { num: 7, title: 'Privacy & Consent', icon: '🔒' }
     ];
 
+    const rules = {
+        showTranscript: formData.type === 'Interview',
+        showLocation: ['Photo', 'Interview', 'Object'].includes(formData.type),
+        showHistoricalEra: ['Document', 'Object'].includes(formData.type),
+        showSubject: ['Photo', 'Interview'].includes(formData.type),
+        showPhysical: ['Photo', 'Document', 'Object'].includes(formData.type),
+        showStudentAnalysis: formData.type === 'Student Work',
+    };
+
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
@@ -180,7 +190,8 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
         const newArtifact = {
             id: Date.now(),
             title: formData.title,
-            image: formData.imagePreview,
+            type: formData.type,
+            image: formData.imagePreview, // In production, this would be uploaded to server
             collectionId: formData.collectionId || null,
             tags: formData.tags,
             uploader: formData.uploader || 'Current User',
@@ -211,6 +222,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
         setCurrentStep(1);
         setFormData({
             title: '',
+            type: '',
             image: null,
             imagePreview: '',
             tags: [],
@@ -287,6 +299,23 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                                     placeholder="Enter artifact title"
                                     required
                                 />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Type *</label>
+                                <select
+                                    name="type"
+                                    value={formData.type}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value="" disabled>Select a type...</option>
+                                    <option value="Photo">Photo</option>
+                                    <option value="Interview">Interview</option>
+                                    <option value="Document">Document</option>
+                                    <option value="Object">Object</option>
+                                    <option value="Student Work">Student Work</option>
+                                </select>
                             </div>
 
                             <div className="form-group">
@@ -409,23 +438,26 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                                     rows="4"
                                 />
                             </div>
-
+                            
+                            {rules.showTranscript && (
                             <div className="form-group">
                                 <label>Interview Transcript / Field Notes</label>
                                 <textarea
-                                    name="transcript"
-                                    value={formData.transcript}
-                                    onChange={handleInputChange}
-                                    placeholder="Paste interview transcript or field notes here"
-                                    rows="8"
+                                name="transcript"
+                                value={formData.transcript}
+                                onChange={handleInputChange}
+                                placeholder="Paste interview transcript or field notes here"
+                                rows="8"
                                 />
                                 <span className="field-hint">Format: Interviewer: ... / Subject: ...</span>
                             </div>
+                            )}
+
                         </div>
                     )}
 
                     {/* Step 3: Location */}
-                    {currentStep === 3 && (
+                    {currentStep === 3 && rules.showLocation && (
                         <div className="form-section">
                             <h3>Location (Where)</h3>
                             
@@ -510,67 +542,75 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                                 </div>
                             </div>
 
+                            {rules.showHistoricalEra && (
                             <div className="form-group">
                                 <label>Historical Era/Period</label>
                                 <input
-                                    type="text"
-                                    value={formData.timePeriod.era}
-                                    onChange={(e) => handleNestedChange('timePeriod', 'era', e.target.value)}
-                                    placeholder="e.g., Contemporary, Medieval, 19th Century"
+                                type="text"
+                                value={formData.timePeriod.era}
+                                onChange={(e) => handleNestedChange('timePeriod', 'era', e.target.value)}
+                                placeholder="e.g., Contemporary, Medieval, 19th Century"
                                 />
                             </div>
+                            )}
 
-                            <hr className="section-divider" />
-
-                            <h3>Subject (Who)</h3>
                             
-                            <div className="form-group">
-                                <label>Subject Name</label>
-                                <input
-                                    type="text"
-                                    value={formData.subject.name}
-                                    onChange={(e) => handleNestedChange('subject', 'name', e.target.value)}
-                                    placeholder="Name of person, group, or entity"
-                                />
-                            </div>
+                            {rules.showSubject && (
+                                <>
+                                    <hr className="section-divider" />
 
-                            <div className="form-group checkbox-group">
-                                <label className="checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.subject.isPseudonym}
-                                        onChange={(e) => handleNestedChange('subject', 'isPseudonym', e.target.checked)}
-                                    />
-                                    <span>This is a pseudonym (protect identity)</span>
-                                </label>
-                            </div>
+                                    <h3>Subject (Who)</h3>
 
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Role/Occupation</label>
-                                    <input
-                                        type="text"
-                                        value={formData.subject.role}
-                                        onChange={(e) => handleNestedChange('subject', 'role', e.target.value)}
-                                        placeholder="e.g., Artisan, Elder, Teacher"
-                                    />
-                                </div>
+                                    <div className="form-group">
+                                        <label>Subject Name</label>
+                                        <input
+                                            type="text"
+                                            value={formData.subject.name}
+                                            onChange={(e) => handleNestedChange('subject', 'name', e.target.value)}
+                                            placeholder="Name of person, group, or entity"
+                                        />
+                                    </div>
 
-                                <div className="form-group">
-                                    <label>Community/Group</label>
-                                    <input
-                                        type="text"
-                                        value={formData.subject.community}
-                                        onChange={(e) => handleNestedChange('subject', 'community', e.target.value)}
-                                        placeholder="e.g., Abenaki, Local residents"
-                                    />
-                                </div>
-                            </div>
+                                    <div className="form-group checkbox-group">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.subject.isPseudonym}
+                                                onChange={(e) => handleNestedChange('subject', 'isPseudonym', e.target.checked)}
+                                            />
+                                            <span>This is a pseudonym (protect identity)</span>
+                                        </label>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Role/Occupation</label>
+                                            <input
+                                                type="text"
+                                                value={formData.subject.role}
+                                                onChange={(e) => handleNestedChange('subject', 'role', e.target.value)}
+                                                placeholder="e.g., Artisan, Elder, Teacher"
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Community/Group</label>
+                                            <input
+                                                type="text"
+                                                value={formData.subject.community}
+                                                onChange={(e) => handleNestedChange('subject', 'community', e.target.value)}
+                                                placeholder="e.g., Abenaki, Local residents"
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
                         </div>
                     )}
 
                     {/* Step 5: Physical Details */}
-                    {currentStep === 5 && (
+                    {currentStep === 5 && rules.showPhysical &&  (
                         <div className="form-section">
                             <h3>Physical Description</h3>
                             
@@ -911,7 +951,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                                 type="button"
                                 className="btn-primary"
                                 onClick={handleSubmit}
-                                disabled={!formData.title || !formData.imagePreview}
+                                disabled={!formData.title || !formData.type || !formData.imagePreview}
                             >
                                 Save Artifact
                             </button>
