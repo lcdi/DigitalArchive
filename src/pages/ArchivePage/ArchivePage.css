@@ -93,6 +93,193 @@
   width: 100%;
 }
 
+/* Collections grid */
+.collections-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px 28px;
+  padding: 48px 40px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Add collection card ("+") */
+.add-collection-card {
+  position: relative;
+  width: 280px;
+  height: 268px; /* matches CollectionFolder total height */
+  background: transparent;
+  border: 2.5px dashed rgba(0, 60, 95, 0.25);
+  border-radius: 4px 20px 20px 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(0, 60, 95, 0.4);
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s, transform 0.2s;
+  margin-top: 14px; /* visually aligns with folder cards that have the tab offset */
+}
+
+.add-collection-card:hover {
+  border-color: #00A9E0;
+  color: #00A9E0;
+  background-color: rgba(0, 169, 224, 0.05);
+  transform: translateY(-4px);
+}
+
+.add-collection-plus {
+  font-size: 48px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.add-collection-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* New collection modal */
+.new-collection-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 42, 58, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.new-collection-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  width: 340px;
+  box-shadow: 0 16px 48px rgba(0, 42, 58, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.new-collection-modal h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #003C5F;
+}
+
+.new-collection-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(0, 60, 95, 0.2);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #002A3A;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.new-collection-input:focus {
+  border-color: #00A9E0;
+}
+
+.new-collection-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.new-collection-cancel {
+  background: none;
+  border: 1.5px solid rgba(0, 60, 95, 0.2);
+  color: #003C5F;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s;
+}
+
+.new-collection-cancel:hover {
+  background: rgba(0, 60, 95, 0.06);
+}
+
+.new-collection-create {
+  background: #003C5F;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s;
+}
+
+.new-collection-create:hover:not(:disabled) {
+  background: #00A9E0;
+}
+
+.new-collection-create:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Artifacts list header (when inside a collection) */
+.artifacts-list-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.back-to-collections-btn {
+  background: none;
+  border: 1.5px solid rgba(0, 60, 95, 0.2);
+  color: #003C5F;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s, border-color 0.18s;
+  white-space: nowrap;
+}
+
+.back-to-collections-btn:hover {
+  background: rgba(0, 60, 95, 0.06);
+  border-color: rgba(0, 60, 95, 0.4);
+}
+
+.add-to-collection-btn {
+  background: #003C5F;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.add-to-collection-btn:hover {
+  background: #00A9E0;
+}
+
+.active-collection-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: #003C5F;
+  text-transform: capitalize;
+}
+
 .no-results {
   text-align: center;
   padding: 60px 20px;
