@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import './Landing.css'
@@ -60,13 +60,31 @@ function generateRects(count) {
   return out
 }
 
+function getRectWidth(windowWidth) {
+  if (windowWidth <= 520) return 96
+  if (windowWidth <= 900) return 120
+  return 140
+}
+
+function getCount(windowWidth) {
+  return Math.ceil(windowWidth / getRectWidth(windowWidth)) + 1
+}
+
+const MAX_RECTS = 60
+
 export default function Landing() {
-  const TOTAL = 17
-  const colors = React.useMemo(() => generateColors(TOTAL), [])
-  const rects  = React.useMemo(() => generateRects(TOTAL), [])
+  const colors = React.useMemo(() => generateColors(MAX_RECTS), [])
+  const rects = React.useMemo(() => generateRects(MAX_RECTS), [])
+  const [count, setCount] = useState(() => getCount(window.innerWidth))
   const navigate = useNavigate()
   const { login } = useAuth()
 
+
+  useEffect(() => {
+    const update = () => setCount(getCount(window.innerWidth))
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -84,7 +102,7 @@ export default function Landing() {
   return (
     <div className="landing">
       <div className="rect-container" aria-hidden>
-        {colors.map((c, i) => {
+        {colors.slice(0, count).map((c, i) => {
           const r = rects[i]
           return (
             <div
@@ -105,6 +123,7 @@ export default function Landing() {
       </div>
 
       <div className="center-form" role="form" aria-label="Login form">
+        <h1 className="landing-title">backstory</h1>
         <label className="sr-only" htmlFor="username">Username</label>
         <input
           id="username"

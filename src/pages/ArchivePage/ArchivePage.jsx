@@ -195,29 +195,28 @@ function ArchivePage() {
           >
             ☰
           </button>
+          <h1>Backstory</h1>
 
-          <h1>Digital Archive</h1>
-
-          {/* Show logged-in user so it's obvious admin mode is active */}
-          {user && (
-            <span className="admin-user-badge">
+            {/* Show logged-in user so it's obvious admin mode is active */}
+            {user && (
+                <span className="admin-user-badge">
               ✏️ {user.username}
             </span>
-          )}
+            )}
 
-          {perms.canAddArtifacts && (
-            <button
-              className="add-artifact-btn"
-              onClick={() => { setAddTargetCollectionId(null); setIsAddModalOpen(true) }}
-              aria-label="Add new artifact"
-            >
-              + Add Artifact
+            {perms.canAddArtifacts && (
+                <button
+                    className="add-artifact-btn"
+                    onClick={() => { setAddTargetCollectionId(null); setIsAddModalOpen(true) }}
+                    aria-label="Add new artifact"
+                >
+                    + Add Artifact
+                </button>
+            )}
+
+            <button className="logout-btn" onClick={handleLogout} aria-label="Logout">
+                Logout
             </button>
-          )}
-
-          <button className="logout-btn" onClick={handleLogout} aria-label="Logout">
-            Logout
-          </button>
         </header>
 
         {viewMode === 'collections' ? (
