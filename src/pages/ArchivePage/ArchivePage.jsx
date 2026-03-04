@@ -154,7 +154,7 @@ function ArchivePage() {
           >
             ☰
           </button>
-          <h1>Digital Archive</h1>
+          <h1>Backstory</h1>
           <button
             className="add-artifact-btn"
             onClick={() => { setAddTargetCollectionId(null); setIsAddModalOpen(true); }}
