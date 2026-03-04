@@ -5,8 +5,9 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
 
-  const login = (username, role) => {
-    setUser({ username, role }) // role: 'admin' | 'viewer'
+  // Any valid login = admin. No role selection.
+  const login = (username) => {
+    setUser({ username, role: 'admin' })
   }
 
   const logout = () => setUser(null)
@@ -22,27 +23,21 @@ export function useAuth() {
   return useContext(AuthContext)
 }
 
-/**
- * Returns a flat set of boolean permission flags derived from the user's role.
- * Use this throughout the app instead of checking role === 'admin' directly.
- */
 export function usePermissions() {
   const { user } = useAuth()
-  const isAdmin = user?.role === 'admin'
+  // Logged-in = admin. Logged-out = read-only public viewer.
+  const isAdmin = user !== null && user !== undefined
 
   return {
     isAdmin,
-    isViewer: !isAdmin,
-
-    // UI controls
-    canAddArtifacts:       isAdmin,
-    canEditArtifacts:      isAdmin,
-    canDeleteArtifacts:    isAdmin,
-    canCreateCollections:  isAdmin,
-
-    // Data visibility
-    canViewPrivateArtifacts: isAdmin,  // artifacts with publicAccess: false
-    canViewPrivateDetails:   isAdmin,  // IRB #s, consent form metadata, privacy notes
-    canViewPseudonymContext: isAdmin,  // know that a name IS a pseudonym
+    canAddArtifacts:         isAdmin,
+    canEditArtifacts:        isAdmin,
+    canDeleteArtifacts:      isAdmin,
+    canCreateCollections:    isAdmin,
+    canViewPrivateArchives:  isAdmin,
+    canViewPrivateArtifacts: isAdmin,
+    canViewPrivateDetails:   isAdmin,
+    canViewPseudonymContext: isAdmin,
   }
 }
+

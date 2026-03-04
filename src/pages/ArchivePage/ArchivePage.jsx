@@ -8,6 +8,7 @@ import DetailPanel from '../../components/DetailPanel'
 import AddArtifactModal from '../../components/AddArtifactModal'
 import { useAuth, usePermissions } from '../../context/AuthContext'
 import { artifacts as initialArtifacts, filterOptions } from '../../data/artifacts'
+import { collectionsMeta, isCollectionPrivate } from '../../data/collectionsMeta'
 
 function ArchivePage() {
   const { user, logout } = useAuth()
@@ -25,6 +26,51 @@ function ArchivePage() {
   const [isNewCollectionModalOpen, setIsNewCollectionModalOpen] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState('')
   const [addTargetCollectionId, setAddTargetCollectionId] = useState(null)
+  const [copiedCollectionId, setCopiedCollectionId] = useState(null)
+  // Stores per-session edits to collection name/description/privacy
+  const [collectionOverrides, setCollectionOverrides] = useState({})
+
+  const handleUpdateCollection = (collectionId, updates) => {
+    setCollectionOverrides(prev => ({
+      ...prev,
+      [collectionId]: { ...prev[collectionId], ...updates }
+    }))
+  }
+
+  const handleShareCollection = (collectionId) => {
+    const url = `${window.location.origin}/view/${collectionId}`
+
+    // Try modern clipboard API first, fall back to execCommand for non-HTTPS
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url)
+        .then(() => {
+          setCopiedCollectionId(collectionId)
+          setTimeout(() => setCopiedCollectionId(null), 2000)
+        })
+        .catch(() => fallbackCopy(url, collectionId))
+    } else {
+      fallbackCopy(url, collectionId)
+    }
+  }
+
+  const fallbackCopy = (url, collectionId) => {
+    const el = document.createElement('textarea')
+    el.value = url
+    el.style.position = 'fixed'
+    el.style.opacity = '0'
+    document.body.appendChild(el)
+    el.focus()
+    el.select()
+    try {
+      document.execCommand('copy')
+      setCopiedCollectionId(collectionId)
+      setTimeout(() => setCopiedCollectionId(null), 2000)
+    } catch (err) {
+      // Last resort: show URL in prompt so user can copy manually
+      window.prompt('Copy the share link:', url)
+    }
+    document.body.removeChild(el)
+  }
   const [filters, setFilters] = useState({
     tags: [],
     fileTypes: [],
@@ -152,10 +198,12 @@ function ArchivePage() {
 
           <h1>Digital Archive</h1>
 
-          {/* Role badge */}
-          <div className={`role-badge ${perms.isAdmin ? 'role-badge--admin' : 'role-badge--viewer'}`}>
-            {perms.isAdmin ? '✏️ Admin' : '👁 Viewer'}
-          </div>
+          {/* Show logged-in user so it's obvious admin mode is active */}
+          {user && (
+            <span className="admin-user-badge">
+              ✏️ {user.username}
+            </span>
+          )}
 
           {perms.canAddArtifacts && (
             <button
@@ -172,22 +220,31 @@ function ArchivePage() {
           </button>
         </header>
 
-        {/* Viewer banner */}
-        {perms.isViewer && (
-          <div className="viewer-banner">
-            👁 You are viewing a read-only snapshot of this archive. Only publicly accessible artifacts are shown.
-          </div>
-        )}
-
         {viewMode === 'collections' ? (
           <div className="collections-grid">
-            {collections.map(collection => (
-              <CollectionFolder
-                key={collection.id}
-                collection={collection}
-                onClick={handleOpenCollection}
-              />
-            ))}
+            {collections.map(collection => {
+              const override = collectionOverrides[collection.id] ?? {}
+              const resolvedName = override.name ?? collectionsMeta[collection.id]?.label ?? collection.name
+              const resolvedPrivate = override.isPrivate ?? isCollectionPrivate(collection.id)
+              const resolvedMeta = {
+                ...collectionsMeta[collection.id],
+                description: override.description ?? collectionsMeta[collection.id]?.description ?? '',
+              }
+              const displayCollection = { ...collection, name: resolvedName }
+              return (
+                <CollectionFolder
+                  key={collection.id}
+                  collection={displayCollection}
+                  onClick={handleOpenCollection}
+                  isPrivate={resolvedPrivate}
+                  isAdmin={perms.isAdmin}
+                  onShare={() => handleShareCollection(collection.id)}
+                  shareCopied={copiedCollectionId === collection.id}
+                  onUpdate={(updates) => handleUpdateCollection(collection.id, updates)}
+                  collectionMeta={resolvedMeta}
+                />
+              )
+            })}
 
             {/* Only admins can create new collections */}
             {perms.canCreateCollections && (

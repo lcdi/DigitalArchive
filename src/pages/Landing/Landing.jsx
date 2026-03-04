@@ -69,12 +69,11 @@ export default function Landing() {
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole]         = useState('viewer') // 'admin' | 'viewer'
 
   const handleLogin = (e) => {
     e.preventDefault()
     if (!username || !password) return
-    login(username, role)
+    login(username)
     navigate('/archive')
   }
 
@@ -130,29 +129,13 @@ export default function Landing() {
         />
 
         {/* Role toggle */}
-        <div className="role-toggle" role="group" aria-label="Access level">
-          <button
-            type="button"
-            className={`role-btn ${role === 'viewer' ? 'active' : ''}`}
-            onClick={() => setRole('viewer')}
-          >
-            👁 Viewer
-          </button>
-          <button
-            type="button"
-            className={`role-btn ${role === 'admin' ? 'active' : ''}`}
-            onClick={() => setRole('admin')}
-          >
-            ✏️ Admin
-          </button>
-        </div>
 
         <button
           className="login-btn"
           onClick={handleLogin}
           disabled={!username || !password}
         >
-          {role === 'admin' ? 'Login as Admin' : 'View Archive'}
+          Login
         </button>
       </div>
     </div>

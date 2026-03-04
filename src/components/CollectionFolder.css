@@ -1,141 +1,299 @@
-/* Collection Folder Card */
-
 .collection-folder {
-  position: relative;
-  width: 280px;
-  background: white;
-  border-radius: 4px 20px 20px 20px;
-  box-shadow:
-    0 4px 16px rgba(0, 60, 95, 0.12),
-    0 1px 4px rgba(0, 60, 95, 0.08);
-  border: 1px solid rgba(0, 60, 95, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
   cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: visible;
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.12s;
+  position: relative;
 }
 
 .collection-folder:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    0 12px 32px rgba(0, 60, 95, 0.2),
-    0 2px 8px rgba(0, 60, 95, 0.1);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
-/* Folder tab sticking out above the top-left corner */
-.folder-tab {
-  position: absolute;
-  top: -14px;
-  left: 0;
-  width: 90px;
-  height: 18px;
-  background: white;
-  border: 1px solid rgba(0, 60, 95, 0.08);
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 -2px 6px rgba(0, 60, 95, 0.06);
+.collection-folder-icon {
+  display: none; /* replaced by .collection-thumb */
 }
 
-/* Inner images grid */
-.folder-images {
-  display: grid;
-  gap: 6px;
-  padding: 16px 16px 12px;
-  height: 210px;
-  border-radius: 4px 20px 0 0;
+/* ── Preview thumbnail ── */
+.collection-thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
   overflow: hidden;
-  background: #f0f8ff;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Layout variants depending on number of images */
-.folder-images.count-1 {
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
-}
-
-.folder-images.count-2 {
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr;
-}
-
-.folder-images.count-3 {
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-}
-
-.folder-images.count-4 {
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-}
-
-/* When 3 images: first one spans full width */
-.folder-images.count-3 .folder-image-slot:first-child {
-  grid-column: 1 / -1;
-}
-
-.folder-image-slot {
-  overflow: hidden;
-  border-radius: 10px;
-  background: #BEE9F7;
-}
-
-.folder-image-slot img {
+.collection-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s ease;
+  font-size: 0;
+  color: transparent;
 }
 
-.collection-folder:hover .folder-image-slot img {
-  transform: scale(1.04);
+.collection-thumb-icon {
+  font-size: 1.6rem;
+  line-height: 1;
 }
 
-/* Empty state */
-.folder-empty {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #236192;
-  font-size: 13px;
+.collection-folder-body {
+  flex: 1;
+  min-width: 0;
 }
 
-.folder-empty-icon {
-  font-size: 32px;
-}
-
-/* Footer */
-.folder-footer {
+.collection-folder-title-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px 14px;
-  border-top: 1px solid rgba(0, 60, 95, 0.07);
-  background: white;
-  border-radius: 0 0 20px 20px;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.folder-name {
-  font-size: 15px;
+.collection-folder-name {
+  font-size: 1rem;
   font-weight: 600;
-  color: #003C5F;
-  text-transform: capitalize;
+  color: #1e293b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 160px;
 }
 
-.folder-count {
-  font-size: 12px;
-  font-weight: 500;
-  color: #236192;
-  background: #BEE9F7;
-  padding: 2px 8px;
-  border-radius: 20px;
-  white-space: nowrap;
+.collection-private-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
   flex-shrink: 0;
 }
+
+.collection-folder-desc {
+  font-size: 0.77rem;
+  color: #64748b;
+  display: block;
+  margin-top: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collection-folder-count {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: block;
+  margin-top: 0.2rem;
+}
+
+/* ── Action buttons group ── */
+.collection-folder-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.collection-share-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.collection-share-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.collection-share-btn.copied {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
+.collection-gear-btn {
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.collection-gear-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* ── Settings modal ── */
+.cf-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.cf-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.cf-modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.cf-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cf-input,
+.cf-textarea {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #1e293b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+  resize: vertical;
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.cf-input:focus,
+.cf-textarea:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147,197,253,0.3);
+}
+
+/* Privacy toggle row */
+.cf-privacy-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.cf-privacy-hint {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #94a3b8;
+  flex: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  margin-left: 0.5rem;
+}
+
+/* Toggle switch */
+.cf-toggle {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.cf-toggle.off { background: #e2e8f0; }
+.cf-toggle.on  { background: #1e40af; }
+
+.cf-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  display: block;
+}
+
+.cf-toggle.on .cf-toggle-knob {
+  transform: translateX(18px);
+}
+
+/* Modal action buttons */
+.cf-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.cf-btn-cancel,
+.cf-btn-save {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cf-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+.cf-btn-cancel:hover { background: #e2e8f0; }
+
+.cf-btn-save {
+  background: #1e40af;
+  color: #fff;
+}
+.cf-btn-save:hover { background: #1e3a8a; }
+

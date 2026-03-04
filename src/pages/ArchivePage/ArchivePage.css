@@ -59,6 +59,18 @@
 }
 
 /* ── Role badge ─────────────────────────────────────────── */
+.admin-user-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 .role-badge {
   padding: 6px 14px;
   border-radius: 20px;
@@ -148,32 +160,32 @@
 }
 
 .collections-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 36px 28px;
-  padding: 48px 40px 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  align-items: start;
+  gap: 16px;
+  padding: 32px 40px;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── Add-collection card (admin only) ───────────────────── */
 .add-collection-card {
   position: relative;
-  width: 280px;
-  height: 268px;
+  min-height: 90px;
   background: transparent;
   border: 2.5px dashed rgba(0, 60, 95, 0.25);
-  border-radius: 4px 20px 20px 20px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   color: rgba(0, 60, 95, 0.4);
   transition: border-color 0.2s, color 0.2s, background-color 0.2s, transform 0.2s;
-  margin-top: 14px;
 }
 
 .add-collection-card:hover {
