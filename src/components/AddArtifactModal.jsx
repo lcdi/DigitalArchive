@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './AddArtifactModal.css';
 
 function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCollectionId = null }) {
-    const [currentStep, setCurrentStep] = useState(1);
+    const [currentStepKey, setCurrentStepKey] = useState('basic');
     const [formData, setFormData] = useState({
         // Basic Info
         title: '',
@@ -101,16 +101,6 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
         }
     }, [isOpen, targetCollectionId]);
 
-    const steps = [
-        { num: 1, title: 'Basic Info', icon: '📄' },
-        { num: 2, title: 'Context', icon: '📝' },
-        { num: 3, title: 'Location', icon: '📍' },
-        { num: 4, title: 'Time & Subject', icon: '👤' },
-        { num: 5, title: 'Physical Details', icon: '🔬' },
-        { num: 6, title: 'Meaning', icon: '💭' },
-        { num: 7, title: 'Privacy & Consent', icon: '🔒' }
-    ];
-
     const rules = {
         showTranscript: formData.type === 'Interview',
         showLocation: ['Photo', 'Interview', 'Object'].includes(formData.type),
@@ -120,6 +110,31 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
         showStudentAnalysis: formData.type === 'Student Work',
     };
 
+    const ALL_STEPS = [
+        { key: 'basic', title: 'Basic Info', icon: '📄' },
+        { key: 'context', title: 'Context', icon: '📝' },
+        { key: 'location', title: 'Location', icon: '📍' },
+        { key: 'timeSubject', title: 'Time & Subject', icon: '👤' },
+        { key: 'physical', title: 'Physical Details', icon: '🔬' },
+        { key: 'meaning', title: 'Meaning', icon: '💭' },
+        { key: 'privacy', title: 'Privacy & Consent', icon: '🔒' }
+    ];
+
+    const visibleSteps = ALL_STEPS.filter(step => {
+        if (step.key === 'location') return rules.showLocation;
+        if (step.key === 'physical') return rules.showPhysical;
+        return true;
+    });
+
+    const currentIndex = visibleSteps.findIndex(s => s.key === currentStepKey);
+
+    useEffect(() => {
+    const stillVisible = visibleSteps.some(s => s.key === currentStepKey);
+    if (!stillVisible) {
+        setCurrentStepKey(visibleSteps[0]?.key ?? 'basic');
+    }
+    }, [visibleSteps, currentStepKey]);
+    
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
@@ -174,15 +189,15 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
     };
 
     const handleNext = () => {
-        if (currentStep < steps.length) {
-            setCurrentStep(currentStep + 1);
-        }
+    if (currentIndex < visibleSteps.length - 1) {
+        setCurrentStepKey(visibleSteps[currentIndex + 1].key);
+    }
     };
 
     const handlePrevious = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-        }
+    if (currentIndex > 0) {
+        setCurrentStepKey(visibleSteps[currentIndex - 1].key);
+    }
     };
 
     const handleSubmit = () => {
@@ -219,7 +234,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
     };
 
     const handleClose = () => {
-        setCurrentStep(1);
+        setCurrentStepKey('basic');
         setFormData({
             title: '',
             type: '',
@@ -268,24 +283,29 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
 
                 {/* Progress Steps */}
                 <div className="progress-steps">
-                    {steps.map(step => (
-                        <div 
-                            key={step.num}
-                            className={`progress-step ${currentStep === step.num ? 'active' : ''} ${currentStep > step.num ? 'completed' : ''}`}
-                            onClick={() => setCurrentStep(step.num)}
-                        >
-                            <div className="step-icon">{step.icon}</div>
-                            <div className="step-info">
-                                <div className="step-number">Step {step.num}</div>
-                                <div className="step-title">{step.title}</div>
-                            </div>
+                {visibleSteps.map((step, idx) => {
+                    const isActive = currentStepKey === step.key;
+                    const isCompleted = idx < currentIndex;
+
+                    return (
+                    <div
+                        key={step.key}
+                        className={`progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
+                        onClick={() => setCurrentStepKey(step.key)}
+                    >
+                        <div className="step-icon">{step.icon}</div>
+                        <div className="step-info">
+                        <div className="step-number">Step {idx + 1}</div>
+                        <div className="step-title">{step.title}</div>
                         </div>
-                    ))}
+                    </div>
+                    );
+                })}
                 </div>
 
                 <div className="modal-content">
                     {/* Step 1: Basic Info */}
-                    {currentStep === 1 && (
+                    {currentStepKey === 'basic' && (
                         <div className="form-section">
                             <h3>Basic Information</h3>
                             
@@ -411,7 +431,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     )}
 
                     {/* Step 2: Context */}
-                    {currentStep === 2 && (
+                    {currentStepKey === 'context' && (
                         <div className="form-section">
                             <h3>Context & Description</h3>
                             
@@ -457,7 +477,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     )}
 
                     {/* Step 3: Location */}
-                    {currentStep === 3 && rules.showLocation && (
+                    {currentStepKey === 'location' && rules.showLocation && (
                         <div className="form-section">
                             <h3>Location (Where)</h3>
                             
@@ -517,7 +537,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     )}
 
                     {/* Step 4: Time & Subject */}
-                    {currentStep === 4 && (
+                    {currentStepKey === 'timeSubject' && (
                         <div className="form-section">
                             <h3>Time Period (When)</h3>
                             
@@ -610,7 +630,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     )}
 
                     {/* Step 5: Physical Details */}
-                    {currentStep === 5 && rules.showPhysical &&  (
+                    {currentStepKey === 'physical' && rules.showPhysical &&  (
                         <div className="form-section">
                             <h3>Physical Description</h3>
                             
@@ -659,7 +679,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     )}
 
                     {/* Step 6: Meaning */}
-                    {currentStep === 6 && (
+                    {currentStepKey === 'meaning' && (
                         <div className="form-section">
                             <h3>Function & Cultural Meaning</h3>
                             
@@ -737,7 +757,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     )}
 
                     {/* Step 7: Privacy & Consent */}
-                    {currentStep === 7 && (
+                    {currentStepKey === 'privacy' && (
                         <div className="form-section">
                             <h3>Privacy Settings</h3>
                             
@@ -928,32 +948,32 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     </button>
                     
                     <div className="footer-right">
-                        {currentStep > 1 && (
-                            <button 
-                                type="button"
-                                className="btn-secondary"
-                                onClick={handlePrevious}
+                        {currentIndex > 0 && (
+                            <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={handlePrevious}
                             >
-                                ← Previous
+                            ← Previous
                             </button>
                         )}
-                        
-                        {currentStep < steps.length ? (
-                            <button 
-                                type="button"
-                                className="btn-primary"
-                                onClick={handleNext}
+
+                        {currentIndex < visibleSteps.length - 1 ? (
+                            <button
+                            type="button"
+                            className="btn-primary"
+                            onClick={handleNext}
                             >
-                                Next →
+                            Next →
                             </button>
                         ) : (
-                            <button 
-                                type="button"
-                                className="btn-primary"
-                                onClick={handleSubmit}
-                                disabled={!formData.title || !formData.type || !formData.imagePreview}
+                            <button
+                            type="button"
+                            className="btn-primary"
+                            onClick={handleSubmit}
+                            disabled={!formData.title || !formData.type || !formData.imagePreview}
                             >
-                                Save Artifact
+                            Save Artifact
                             </button>
                         )}
                     </div>
