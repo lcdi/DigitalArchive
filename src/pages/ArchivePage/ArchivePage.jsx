@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './ArchivePage.css'
 import ArtifactCard from '../../components/ArtifactCard'
@@ -30,8 +30,31 @@ function ArchivePage() {
   // Stores per-session edits to collection name/description/privacy
   const [collectionOverrides, setCollectionOverrides] = useState({})
 
-  const handleUpdateCollection = (collectionId, updates) => {
-    setCollectionOverrides(prev => ({
+  const headerRef = useRef(null)
+
+  useEffect(() => {
+    const header = headerRef.current
+    if (!header) return
+    const updateHeight = () => {
+      const h = header.getBoundingClientRect().height
+      document.querySelector('.app')?.style.setProperty('--navbar-height', `${h}px`)
+    }
+    updateHeight()
+    const ro = new ResizeObserver(updateHeight)
+    ro.observe(header)
+    return () => ro.disconnect()
+  }, [])
+
+  // ── Document title ──
+  useEffect(() => {
+    if (viewMode === 'collections') {
+      document.title = 'Backstory — Collections'
+    } else if (activeCollection) {
+      document.title = `${activeCollection.name} — Backstory`
+    }
+  }, [viewMode, activeCollection])
+
+  const handleUpdateCollection = (collectionId, updates) => {    setCollectionOverrides(prev => ({
       ...prev,
       [collectionId]: { ...prev[collectionId], ...updates }
     }))
@@ -186,8 +209,8 @@ function ArchivePage() {
         onFilterChange={setFilters}
       />
 
-      <div className={`main-content ${isFilterOpen ? 'filter-open' : ''} ${isDetailOpen ? 'detail-open' : ''}`}>
-        <header className="app-header">
+      <div className="main-content">
+        <header className="app-header" ref={headerRef}>
           <button
             className="hamburger-btn"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -204,6 +227,17 @@ function ArchivePage() {
             </span>
             )}
 
+            {/* Preview button — links to the public view of the active collection */}
+            {viewMode === 'artifacts' && activeCollection && (
+              <button
+                className="preview-btn"
+                onClick={() => navigate(`/view/${activeCollection.id}`)}
+                aria-label={`Preview ${activeCollection.name} as public viewer`}
+              >
+                👁 Preview
+              </button>
+            )}
+
             {perms.canAddArtifacts && (
                 <button
                     className="add-artifact-btn"
@@ -218,6 +252,8 @@ function ArchivePage() {
                 Logout
             </button>
         </header>
+
+        <div className={`content-body ${isFilterOpen ? 'filter-open' : ''} ${isDetailOpen ? 'detail-open' : ''}`}>
 
         {viewMode === 'collections' ? (
           <div className="collections-grid">
@@ -292,7 +328,8 @@ function ArchivePage() {
             )}
           </div>
         )}
-      </div>
+      </div> {/* end content-body */}
+      </div> {/* end main-content */}
 
       <DetailPanel
         artifact={selectedArtifact}
