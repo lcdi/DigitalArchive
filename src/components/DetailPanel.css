@@ -3,9 +3,9 @@
 .detail-panel {
   position: fixed;
   right: 0;
-  top: 0;
+  top: var(--navbar-height, 0px);
   width: 450px;
-  height: 100vh;
+  height: calc(100vh - var(--navbar-height, 0px));
   background: white;
   box-shadow: -2px 0 12px rgba(0, 60, 95, 0.15);
   transform: translateX(100%);
@@ -26,10 +26,7 @@
   align-items: center;
   padding: 20px;
   border-bottom: 2px solid #00A9E0;
-  position: sticky;
-  top: 0;
   background: #003C5F;
-  z-index: 1;
 }
 
 .detail-header h2 {

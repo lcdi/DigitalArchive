@@ -85,6 +85,8 @@ export default function Landing() {
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
   }, [])
+
+  useEffect(() => { document.title = 'Backstory' }, [])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
