@@ -1,12 +1,22 @@
 import './DetailPanel.css';
 import { downloadArtifact } from '../utils/downloadArtifact.js';
 
-function DetailPanel({ artifact, isOpen, onClose }) {
+/**
+ * DetailPanel
+ * @prop {Object}   artifact
+ * @prop {boolean}  isOpen
+ * @prop {Function} onClose
+ * @prop {boolean}  isAdmin – gates IRB info, consent details, privacy notes, pseudonym context
+ */
+function DetailPanel({ artifact, isOpen, onClose, isAdmin = false }) {
     if (!artifact) return null;
 
     const handleDownload = async () => {
         await downloadArtifact(artifact);
     };
+
+    // Pseudonym note is shown to admins so they know the name is protected
+    const showPseudonymNote = isAdmin && artifact.subject?.isPseudonym;
 
     return (
         <div className={`detail-panel ${isOpen ? 'open' : ''}`}>
@@ -16,17 +26,16 @@ function DetailPanel({ artifact, isOpen, onClose }) {
             </div>
 
             <div className="detail-content">
-                {/* Privacy & Security Indicators */}
-                {artifact.privacy && (
+
+                {/* ── Privacy banner (admin only) ─────────────── */}
+                {isAdmin && artifact.privacy && (
                     <div className="privacy-banner">
                         <div className="privacy-badge">
                             <span className="lock-icon">🔒</span>
                             <span>{artifact.privacy.level}</span>
                         </div>
                         {artifact.subject?.isPseudonym && (
-                            <div className="pseudonym-badge">
-                                Identity Protected
-                            </div>
+                            <div className="pseudonym-badge">Identity Protected</div>
                         )}
                     </div>
                 )}
@@ -43,12 +52,12 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                     Download Artifact
                 </button>
 
-                {/* IRB & Consent Status */}
-                {artifact.consent && (
+                {/* ── IRB & Consent status (admin only) ──────── */}
+                {isAdmin && artifact.consent && (
                     <div className="consent-status">
                         {artifact.consent.irbApproved && (
                             <div className="irb-badge approved">
-                                ✓ IRB Approved - {artifact.consent.irbNumber}
+                                ✓ IRB Approved — {artifact.consent.irbNumber}
                             </div>
                         )}
                         {artifact.consent.formSigned && (
@@ -60,6 +69,7 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                 )}
 
                 <div className="detail-info">
+
                     {/* Title */}
                     {artifact.title && (
                         <div className="detail-section">
@@ -68,16 +78,22 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                         </div>
                     )}
 
-                    {/* Subject Information (WHO) */}
+                    {/* Subject */}
                     {artifact.subject && (
                         <div className="detail-section">
                             <h3>Subject</h3>
                             <p>
                                 <strong>Name:</strong> {artifact.subject.name}
-                                {artifact.subject.isPseudonym && <span className="pseudonym-note"> (Pseudonym)</span>}
+                                {showPseudonymNote && (
+                                    <span className="pseudonym-note"> (Pseudonym)</span>
+                                )}
                             </p>
-                            {artifact.subject.role && <p><strong>Role:</strong> {artifact.subject.role}</p>}
-                            {artifact.subject.community && <p><strong>Community:</strong> {artifact.subject.community}</p>}
+                            {artifact.subject.role && (
+                                <p><strong>Role:</strong> {artifact.subject.role}</p>
+                            )}
+                            {artifact.subject.community && (
+                                <p><strong>Community:</strong> {artifact.subject.community}</p>
+                            )}
                         </div>
                     )}
 
@@ -89,26 +105,39 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                         </div>
                     )}
 
-                    {/* Location (WHERE) */}
+                    {/* Location */}
                     {artifact.location && (
                         <div className="detail-section">
-                            <h3>Location (Where)</h3>
-                            <p><strong>Place:</strong> {artifact.location.place}</p>
-                            <p><strong>City/Region:</strong> {artifact.location.city}, {artifact.location.state}</p>
-                            <p><strong>Country:</strong> {artifact.location.country}</p>
+                            <h3>Location</h3>
+                            {artifact.location.place && (
+                                <p><strong>Place:</strong> {artifact.location.place}</p>
+                            )}
+                            <p>
+                                <strong>City/Region:</strong>{' '}
+                                {artifact.location.city}, {artifact.location.state}
+                            </p>
+                            {artifact.location.country && (
+                                <p><strong>Country:</strong> {artifact.location.country}</p>
+                            )}
                             {artifact.location.coordinates && (
                                 <p><strong>Coordinates:</strong> {artifact.location.coordinates}</p>
                             )}
                         </div>
                     )}
 
-                    {/* Time Period (WHEN) */}
+                    {/* Time Period */}
                     {artifact.timePeriod && (
                         <div className="detail-section">
-                            <h3>Time Period (When)</h3>
-                            {artifact.timePeriod.created && <p><strong>Created:</strong> {artifact.timePeriod.created}</p>}
-                            {artifact.timePeriod.documented && <p><strong>Documented:</strong> {artifact.timePeriod.documented}</p>}
-                            {artifact.timePeriod.era && <p><strong>Era:</strong> {artifact.timePeriod.era}</p>}
+                            <h3>Time Period</h3>
+                            {artifact.timePeriod.created && (
+                                <p><strong>Created:</strong> {artifact.timePeriod.created}</p>
+                            )}
+                            {artifact.timePeriod.documented && (
+                                <p><strong>Documented:</strong> {artifact.timePeriod.documented}</p>
+                            )}
+                            {artifact.timePeriod.era && (
+                                <p><strong>Era:</strong> {artifact.timePeriod.era}</p>
+                            )}
                         </div>
                     )}
 
@@ -147,7 +176,7 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                         </div>
                     )}
 
-                    {/* Meaning */}
+                    {/* Cultural Meaning */}
                     {artifact.meaning && (
                         <div className="detail-section">
                             <h3>Cultural Meaning</h3>
@@ -166,7 +195,7 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                     )}
 
                     {/* Additional Media */}
-                    {artifact.additionalMedia && artifact.additionalMedia.length > 0 && (
+                    {artifact.additionalMedia?.length > 0 && (
                         <div className="detail-section">
                             <h3>Additional Media</h3>
                             <div className="media-list">
@@ -175,7 +204,7 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                                         <span className="media-type">{media.type.toUpperCase()}</span>
                                         <span className="media-title">{media.title}</span>
                                         {media.duration && <span className="media-duration">({media.duration})</span>}
-                                        {media.count && <span className="media-count">({media.count} files)</span>}
+                                        {media.count    && <span className="media-count">({media.count} files)</span>}
                                     </div>
                                 ))}
                             </div>
@@ -183,7 +212,7 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                     )}
 
                     {/* Student Analysis */}
-                    {artifact.analysis && artifact.analysis.hasStudentWork && (
+                    {artifact.analysis?.hasStudentWork && (
                         <div className="detail-section analysis-section">
                             <h3>Student Analysis</h3>
                             <div className="analysis-badge">Student Work Available</div>
@@ -194,7 +223,7 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                     )}
 
                     {/* Tags */}
-                    {artifact.tags && artifact.tags.length > 0 && (
+                    {artifact.tags?.length > 0 && (
                         <div className="detail-section">
                             <h3>Tags</h3>
                             <div className="detail-tags">
@@ -208,34 +237,37 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                     {/* Technical Metadata */}
                     <div className="detail-section metadata-section">
                         <h3>Technical Metadata</h3>
-                        {artifact.uploader && <p><strong>Uploaded By:</strong> {artifact.uploader}</p>}
-                        {artifact.uploadDate && (
-                            <p><strong>Upload Date:</strong> {new Date(artifact.uploadDate).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}</p>
+                        {artifact.uploader    && <p><strong>Uploaded By:</strong> {artifact.uploader}</p>}
+                        {artifact.uploadDate  && (
+                            <p>
+                                <strong>Upload Date:</strong>{' '}
+                                {new Date(artifact.uploadDate).toLocaleDateString('en-US', {
+                                    year: 'numeric', month: 'long', day: 'numeric'
+                                })}
+                            </p>
                         )}
-                        {artifact.fileType && <p><strong>File Type:</strong> {artifact.fileType}</p>}
-                        {artifact.fileSize && <p><strong>File Size:</strong> {artifact.fileSize}</p>}
+                        {artifact.fileType   && <p><strong>File Type:</strong> {artifact.fileType}</p>}
+                        {artifact.fileSize   && <p><strong>File Size:</strong> {artifact.fileSize}</p>}
                         {artifact.dimensions && <p><strong>Image Dimensions:</strong> {artifact.dimensions}</p>}
                     </div>
 
+                    {/* ── Admin-only sections below this line ─── */}
+
                     {/* Privacy Notes */}
-                    {artifact.privacy && artifact.privacy.notes && (
+                    {isAdmin && artifact.privacy?.notes && (
                         <div className="detail-section privacy-notes">
                             <h3>Privacy Notes</h3>
                             <p>{artifact.privacy.notes}</p>
                         </div>
                     )}
 
-                    {/* Consent Permissions */}
-                    {artifact.consent && (
+                    {/* Usage Permissions */}
+                    {isAdmin && artifact.consent && (
                         <div className="detail-section">
                             <h3>Usage Permissions</h3>
                             <div className="permissions-grid">
-                                <div className={`permission ${artifact.consent.permissions.archiveUse ? 'allowed' : 'denied'}`}>
-                                    {artifact.consent.permissions.archiveUse ? '✓' : '✗'} Archive Use
+                                <div className={`permission ${artifact.consent.permissions.archiveUse   ? 'allowed' : 'denied'}`}>
+                                    {artifact.consent.permissions.archiveUse   ? '✓' : '✗'} Archive Use
                                 </div>
                                 <div className={`permission ${artifact.consent.permissions.classroomUse ? 'allowed' : 'denied'}`}>
                                     {artifact.consent.permissions.classroomUse ? '✓' : '✗'} Classroom Use
@@ -249,6 +281,7 @@ function DetailPanel({ artifact, isOpen, onClose }) {
                             </div>
                         </div>
                     )}
+
                 </div>
             </div>
         </div>
