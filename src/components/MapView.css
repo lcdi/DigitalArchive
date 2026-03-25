@@ -1,0 +1,116 @@
+.map-view-container {
+  position: relative;
+  width: 100%;
+}
+
+.map-leaflet {
+  width: 100%;
+  height: calc(100vh - var(--navbar-height, 150px));
+}
+
+/* ── Tooltip card ── */
+/* Override leaflet's default tooltip styles */
+.leaflet-tooltip.map-tooltip {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.leaflet-tooltip.map-tooltip::before {
+  display: none;
+}
+
+.map-tooltip-card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  width: 220px;
+  font-family: Figtree, sans-serif;
+  border: 1px solid #e2e8f0;
+}
+
+.map-tooltip-img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  display: block;
+}
+
+.map-tooltip-body {
+  padding: 0.65rem 0.8rem 0.7rem;
+}
+
+.map-tooltip-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+.map-tooltip-subject {
+  font-size: 0.75rem;
+  color: #475569;
+  margin-bottom: 0.2rem;
+  white-space: normal;
+}
+
+.map-tooltip-pseudonym {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.map-tooltip-location {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+  white-space: normal;
+}
+
+.map-tooltip-location-icon {
+  font-size: 0.65rem;
+}
+
+.map-tooltip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.1rem;
+}
+
+.map-tooltip-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── No pins message ── */
+.map-no-pins {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.map-no-pins p {
+  font-size: 0.9rem;
+  color: #475569;
+  margin: 0;
+}
