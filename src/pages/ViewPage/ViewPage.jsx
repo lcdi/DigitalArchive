@@ -6,7 +6,6 @@ import { collectionsMeta, isCollectionPrivate } from '../../data/collectionsMeta
 import ArtifactCard from '../../components/ArtifactCard'
 import FilterPanel from '../../components/FilterPanel'
 import DetailPanel from '../../components/DetailPanel'
-import MapView from '../../components/MapView'
 import './ViewPage.css'
 
 export default function ViewPage() {
@@ -14,7 +13,6 @@ export default function ViewPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  const [viewMode, setViewMode] = useState('cards')
   const [selectedArtifact, setSelectedArtifact] = useState(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -36,7 +34,7 @@ export default function ViewPage() {
     const header = headerRef.current
     if (!header) return
     const updateHeight = () => {
-      const h = header.getBoundingClientRect().bottom
+      const h = header.getBoundingClientRect().height
       document.querySelector('.view-page')?.style.setProperty('--navbar-height', `${h}px`)
     }
     updateHeight()
@@ -135,42 +133,19 @@ export default function ViewPage() {
             {meta?.description && <p className="view-description">{meta.description}</p>}
           </div>
         </div>
-
-        <div className="view-header-center">
-          <div className="view-mode-toggle">
-            <button
-              className={`view-mode-btn ${viewMode === 'cards' ? 'active' : ''}`}
-              onClick={() => setViewMode('cards')}
-              aria-label="Card view"
-            >
-              ⊞ Cards
-            </button>
-            <button
-              className={`view-mode-btn ${viewMode === 'map' ? 'active' : ''}`}
-              onClick={() => setViewMode('map')}
-              aria-label="Map view"
-            >
-              ◉ Map
-            </button>
-          </div>
-        </div>
-
         <div className="view-header-right">
           {isPrivate && isAdmin && <span className="view-private-badge">🔒 Private</span>}
           <span className="view-readonly-badge">👁 Read-only</span>
-          {isAdmin && (
+          {isAdmin ? (
             <button className="view-admin-btn" onClick={() => navigate('/archive')}>← Admin</button>
+          ) : (
+            <button className="view-signin-btn" onClick={() => navigate('/')}>Sign In</button>
           )}
         </div>
       </header>
 
-      <div className={`view-body${viewMode === 'map' ? ' view-body--map' : ''}${viewMode === 'cards' && isFilterOpen ? ' filter-open' : ''}${viewMode === 'cards' && isDetailOpen ? ' detail-open' : ''}`}>
-        {viewMode === 'map' ? (
-          <MapView
-            artifacts={filteredArtifacts}
-            onArtifactClick={handleArtifactClick}
-          />
-        ) : filteredArtifacts.length === 0 ? (
+      <div className={`view-body ${isFilterOpen ? 'filter-open' : ''} ${isDetailOpen ? 'detail-open' : ''}`}>
+        {filteredArtifacts.length === 0 ? (
           <div className="view-empty">
             {activeFilterCount > 0
               ? <p>No artifacts match your current filters.</p>

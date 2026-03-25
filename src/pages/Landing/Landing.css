@@ -10,7 +10,8 @@
   --rect-width: 140px; /* width used by corner rectangles */
 }
 
-html, body {
+html, body, #root {
+  height: 100%;
   margin: 0;
   background: var(--bg);
 }
