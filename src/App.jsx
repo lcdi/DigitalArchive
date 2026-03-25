@@ -3,6 +3,9 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Landing from './pages/Landing/Landing'
 import ArchivePage from './pages/ArchivePage/ArchivePage'
 import ViewPage from './pages/ViewPage/ViewPage'
+import SiteHeader from './components/SiteHeader'
+import SiteFooter from './components/SiteFooter'
+import './App.css'
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth()
@@ -37,7 +40,13 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <AppRoutes />
+        <div className="site-layout">
+          <SiteHeader />
+          <main className="site-main">
+            <AppRoutes />
+          </main>
+          <SiteFooter />
+        </div>
       </Router>
     </AuthProvider>
   )
