@@ -1,15 +1,7 @@
-/* Site-level layout — sticky footer pattern */
-.site-layout {
-  display: flex;
-  flex-direction: column;
+/* Main App wrapper - minimal styles for router container */
+#root {
+  width: 100%;
   min-height: 100vh;
-}
-
-.site-main {
-  flex: 1 0 auto;
-  display: flex;
-  flex-direction: column;
-  /* Match the header color so any sub-pixel gap between sticky elements
-     is invisible rather than appearing as a white/gray sliver */
-  background: #003C5F;
+  margin: 0;
+  padding: 0;
 }

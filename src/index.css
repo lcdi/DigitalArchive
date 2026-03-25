@@ -4,9 +4,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Global layout */
-  --site-header-height: 64px;
-
   /* Champlain College Brand Colors */
   --champlain-blue: #003C5F;
   --dark-blue: #002A3A;
