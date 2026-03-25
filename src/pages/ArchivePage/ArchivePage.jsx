@@ -6,12 +6,12 @@ import CollectionFolder from '../../components/CollectionFolder'
 import FilterPanel from '../../components/FilterPanel'
 import DetailPanel from '../../components/DetailPanel'
 import AddArtifactModal from '../../components/AddArtifactModal'
-import { useAuth, usePermissions } from '../../context/AuthContext'
+import { usePermissions } from '../../context/AuthContext'
 import { artifacts as initialArtifacts, filterOptions } from '../../data/artifacts'
 import { collectionsMeta, isCollectionPrivate } from '../../data/collectionsMeta'
 
 function ArchivePage() {
-  const { user, logout } = useAuth()
+
   const perms = usePermissions()
   const navigate = useNavigate()
 
@@ -36,7 +36,7 @@ function ArchivePage() {
     const header = headerRef.current
     if (!header) return
     const updateHeight = () => {
-      const h = header.getBoundingClientRect().height
+      const h = header.getBoundingClientRect().bottom
       document.querySelector('.app')?.style.setProperty('--navbar-height', `${h}px`)
     }
     updateHeight()
@@ -195,11 +195,6 @@ function ArchivePage() {
     setSelectedArtifact(null)
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
-
   return (
     <div className="app">
       <FilterPanel
@@ -218,15 +213,8 @@ function ArchivePage() {
           >
             ☰
           </button>
-          <h1>Backstory</h1>
 
-            {/* Show logged-in user so it's obvious admin mode is active */}
-            {user && (
-                <span className="admin-user-badge">
-              ✏️ {user.username}
-            </span>
-            )}
-
+          <div className="app-header-actions">
             {/* Preview button — links to the public view of the active collection */}
             {viewMode === 'artifacts' && activeCollection && (
               <button
@@ -239,18 +227,15 @@ function ArchivePage() {
             )}
 
             {perms.canAddArtifacts && (
-                <button
-                    className="add-artifact-btn"
-                    onClick={() => { setAddTargetCollectionId(null); setIsAddModalOpen(true) }}
-                    aria-label="Add new artifact"
-                >
-                    + Add Artifact
-                </button>
+              <button
+                className="add-artifact-btn"
+                onClick={() => { setAddTargetCollectionId(null); setIsAddModalOpen(true) }}
+                aria-label="Add new artifact"
+              >
+                + Add Artifact
+              </button>
             )}
-
-            <button className="logout-btn" onClick={handleLogout} aria-label="Logout">
-                Logout
-            </button>
+          </div>
         </header>
 
         <div className={`content-body ${isFilterOpen ? 'filter-open' : ''} ${isDetailOpen ? 'detail-open' : ''}`}>
