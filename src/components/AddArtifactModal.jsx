@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react';
 import './AddArtifactModal.css';
+import CreateCustomTypeModal from './CreateCustomTypeModal';
 
 function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCollectionId = null }) {
-    const [currentStep, setCurrentStep] = useState(1);
+    const [currentStepKey, setCurrentStepKey] = useState('basic');
+    const [showCustomTypeCreator, setShowCustomTypeCreator] = useState(false);
+    const [customTypes, setCustomTypes] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('customArtifactTypes') || '[]');
+        } catch {
+            return [];
+        }
+    });
     const [formData, setFormData] = useState({
         // Basic Info
         title: '',
+        type: '',
         image: null,
         imagePreview: '',
         tags: [],
@@ -100,22 +110,71 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
         }
     }, [isOpen, targetCollectionId]);
 
-    const steps = [
-        { num: 1, title: 'Basic Info', icon: '📄' },
-        { num: 2, title: 'Context', icon: '📝' },
-        { num: 3, title: 'Location', icon: '📍' },
-        { num: 4, title: 'Time & Subject', icon: '👤' },
-        { num: 5, title: 'Physical Details', icon: '🔬' },
-        { num: 6, title: 'Meaning', icon: '💭' },
-        { num: 7, title: 'Privacy & Consent', icon: '🔒' }
+    const matchedCustomType = customTypes.find(ct => ct.name === formData.type);
+    const rules = matchedCustomType ? matchedCustomType.rules : {
+        showTranscript: formData.type === 'Interview',
+        showLocation: ['Photo', 'Interview', 'Object'].includes(formData.type),
+        showHistoricalEra: ['Document', 'Object'].includes(formData.type),
+        showSubject: ['Photo', 'Interview'].includes(formData.type),
+        showPhysical: ['Photo', 'Document', 'Object'].includes(formData.type),
+        showStudentAnalysis: true,
+    };
+
+    const isFieldEnabled = (section, field) => {
+        if (!matchedCustomType) return true;
+        const sectionFields = matchedCustomType.fields?.[section];
+        if (!sectionFields) return true;
+        return sectionFields[field] !== false;
+    };
+
+    const ALL_STEPS = [
+        { key: 'basic', title: 'Basic Info', icon: '📄' },
+        { key: 'context', title: 'Context', icon: '📝' },
+        { key: 'location', title: 'Location', icon: '📍' },
+        { key: 'timeSubject', title: 'Time & Subject', icon: '👤' },
+        { key: 'physical', title: 'Physical Details', icon: '🔬' },
+        { key: 'meaning', title: 'Meaning', icon: '💭' },
+        { key: 'privacy', title: 'Privacy & Consent', icon: '🔒' }
     ];
 
+    const visibleSteps = ALL_STEPS.filter(step => {
+        if (step.key === 'location') return rules.showLocation;
+        if (step.key === 'physical') return rules.showPhysical;
+        return true;
+    });
+
+    const currentIndex = visibleSteps.findIndex(s => s.key === currentStepKey);
+
+    useEffect(() => {
+    const stillVisible = visibleSteps.some(s => s.key === currentStepKey);
+    if (!stillVisible) {
+        setCurrentStepKey(visibleSteps[0]?.key ?? 'basic');
+    }
+    }, [visibleSteps, currentStepKey]);
+    
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+    };
+
+    const handleTypeChange = (e) => {
+        const value = e.target.value;
+        if (value === '__create_custom__') {
+            setShowCustomTypeCreator(true);
+        } else {
+            setFormData(prev => ({ ...prev, type: value }));
+        }
+    };
+
+    const handleSaveCustomType = (newType) => {
+        const updated = [...customTypes, newType];
+        setCustomTypes(updated);
+        localStorage.setItem('customArtifactTypes', JSON.stringify(updated));
+        setShowCustomTypeCreator(false);
+        setFormData(prev => ({ ...prev, type: newType.name }));
     };
 
     const handleNestedChange = (category, field, value) => {
@@ -164,15 +223,15 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
     };
 
     const handleNext = () => {
-        if (currentStep < steps.length) {
-            setCurrentStep(currentStep + 1);
-        }
+    if (currentIndex < visibleSteps.length - 1) {
+        setCurrentStepKey(visibleSteps[currentIndex + 1].key);
+    }
     };
 
     const handlePrevious = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-        }
+    if (currentIndex > 0) {
+        setCurrentStepKey(visibleSteps[currentIndex - 1].key);
+    }
     };
 
     const handleSubmit = () => {
@@ -180,7 +239,8 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
         const newArtifact = {
             id: Date.now(),
             title: formData.title,
-            image: formData.imagePreview,
+            type: formData.type,
+            image: formData.imagePreview, // In production, this would be uploaded to server
             collectionId: formData.collectionId || null,
             tags: formData.tags,
             uploader: formData.uploader || 'Current User',
@@ -208,9 +268,10 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
     };
 
     const handleClose = () => {
-        setCurrentStep(1);
+        setCurrentStepKey('basic');
         setFormData({
             title: '',
+            type: '',
             image: null,
             imagePreview: '',
             tags: [],
@@ -247,6 +308,12 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
     if (!isOpen) return null;
 
     return (
+        <>
+        <CreateCustomTypeModal
+            isOpen={showCustomTypeCreator}
+            onClose={() => setShowCustomTypeCreator(false)}
+            onSave={handleSaveCustomType}
+        />
         <div className="modal-overlay">
             <div className="modal-container">
                 <div className="modal-header">
@@ -256,24 +323,29 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
 
                 {/* Progress Steps */}
                 <div className="progress-steps">
-                    {steps.map(step => (
-                        <div 
-                            key={step.num}
-                            className={`progress-step ${currentStep === step.num ? 'active' : ''} ${currentStep > step.num ? 'completed' : ''}`}
-                            onClick={() => setCurrentStep(step.num)}
-                        >
-                            <div className="step-icon">{step.icon}</div>
-                            <div className="step-info">
-                                <div className="step-number">Step {step.num}</div>
-                                <div className="step-title">{step.title}</div>
-                            </div>
+                {visibleSteps.map((step, idx) => {
+                    const isActive = currentStepKey === step.key;
+                    const isCompleted = idx < currentIndex;
+
+                    return (
+                    <div
+                        key={step.key}
+                        className={`progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
+                        onClick={() => setCurrentStepKey(step.key)}
+                    >
+                        <div className="step-icon">{step.icon}</div>
+                        <div className="step-info">
+                        <div className="step-number">Step {idx + 1}</div>
+                        <div className="step-title">{step.title}</div>
                         </div>
-                    ))}
+                    </div>
+                    );
+                })}
                 </div>
 
                 <div className="modal-content">
                     {/* Step 1: Basic Info */}
-                    {currentStep === 1 && (
+                    {currentStepKey === 'basic' && (
                         <div className="form-section">
                             <h3>Basic Information</h3>
                             
@@ -287,6 +359,32 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                                     placeholder="Enter artifact title"
                                     required
                                 />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Type *</label>
+                                <select
+                                    name="type"
+                                    value={formData.type}
+                                    onChange={handleTypeChange}
+                                    required
+                                >
+                                    <option value="" disabled>Select a type...</option>
+                                    <option value="Photo">Photo</option>
+                                    <option value="Interview">Interview</option>
+                                    <option value="Document">Document</option>
+                                    <option value="Object">Object</option>
+                                    <option value="Student Work">Student Work</option>
+                                    {customTypes.length > 0 && (
+                                        <>
+                                            <option disabled>──────────</option>
+                                            {customTypes.map(ct => (
+                                                <option key={ct.id} value={ct.name}>{ct.name}</option>
+                                            ))}
+                                        </>
+                                    )}
+                                    <option value="__create_custom__">Custom...</option>
+                                </select>
                             </div>
 
                             <div className="form-group">
@@ -382,7 +480,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     )}
 
                     {/* Step 2: Context */}
-                    {currentStep === 2 && (
+                    {currentStepKey === 'context' && (
                         <div className="form-section">
                             <h3>Context & Description</h3>
                             
@@ -409,83 +507,97 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                                     rows="4"
                                 />
                             </div>
-
+                            
+                            {rules.showTranscript && (
                             <div className="form-group">
                                 <label>Interview Transcript / Field Notes</label>
                                 <textarea
-                                    name="transcript"
-                                    value={formData.transcript}
-                                    onChange={handleInputChange}
-                                    placeholder="Paste interview transcript or field notes here"
-                                    rows="8"
+                                name="transcript"
+                                value={formData.transcript}
+                                onChange={handleInputChange}
+                                placeholder="Paste interview transcript or field notes here"
+                                rows="8"
                                 />
                                 <span className="field-hint">Format: Interviewer: ... / Subject: ...</span>
                             </div>
+                            )}
+
                         </div>
                     )}
 
                     {/* Step 3: Location */}
-                    {currentStep === 3 && (
+                    {currentStepKey === 'location' && rules.showLocation && (
                         <div className="form-section">
                             <h3>Location (Where)</h3>
-                            
-                            <div className="form-group">
-                                <label>Specific Place</label>
-                                <input
-                                    type="text"
-                                    value={formData.location.place}
-                                    onChange={(e) => handleNestedChange('location', 'place', e.target.value)}
-                                    placeholder="e.g., Burlington Farmers Market"
-                                />
-                            </div>
 
-                            <div className="form-row">
+                            {isFieldEnabled('location', 'place') && (
                                 <div className="form-group">
-                                    <label>City</label>
+                                    <label>Specific Place</label>
                                     <input
                                         type="text"
-                                        value={formData.location.city}
-                                        onChange={(e) => handleNestedChange('location', 'city', e.target.value)}
-                                        placeholder="City"
+                                        value={formData.location.place}
+                                        onChange={(e) => handleNestedChange('location', 'place', e.target.value)}
+                                        placeholder="e.g., Burlington Farmers Market"
                                     />
                                 </div>
+                            )}
 
+                            {(isFieldEnabled('location', 'city') || isFieldEnabled('location', 'state')) && (
+                                <div className="form-row">
+                                    {isFieldEnabled('location', 'city') && (
+                                        <div className="form-group">
+                                            <label>City</label>
+                                            <input
+                                                type="text"
+                                                value={formData.location.city}
+                                                onChange={(e) => handleNestedChange('location', 'city', e.target.value)}
+                                                placeholder="City"
+                                            />
+                                        </div>
+                                    )}
+                                    {isFieldEnabled('location', 'state') && (
+                                        <div className="form-group">
+                                            <label>State/Province</label>
+                                            <input
+                                                type="text"
+                                                value={formData.location.state}
+                                                onChange={(e) => handleNestedChange('location', 'state', e.target.value)}
+                                                placeholder="State or Province"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {isFieldEnabled('location', 'country') && (
                                 <div className="form-group">
-                                    <label>State/Province</label>
+                                    <label>Country</label>
                                     <input
                                         type="text"
-                                        value={formData.location.state}
-                                        onChange={(e) => handleNestedChange('location', 'state', e.target.value)}
-                                        placeholder="State or Province"
+                                        value={formData.location.country}
+                                        onChange={(e) => handleNestedChange('location', 'country', e.target.value)}
+                                        placeholder="Country"
                                     />
                                 </div>
-                            </div>
+                            )}
 
-                            <div className="form-group">
-                                <label>Country</label>
-                                <input
-                                    type="text"
-                                    value={formData.location.country}
-                                    onChange={(e) => handleNestedChange('location', 'country', e.target.value)}
-                                    placeholder="Country"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>GPS Coordinates (Optional)</label>
-                                <input
-                                    type="text"
-                                    value={formData.location.coordinates}
-                                    onChange={(e) => handleNestedChange('location', 'coordinates', e.target.value)}
-                                    placeholder="e.g., 44.4759° N, 73.2121° W"
-                                />
-                                <span className="field-hint">Format: XX.XXXX° N/S, XX.XXXX° E/W</span>
-                            </div>
+                            {isFieldEnabled('location', 'coordinates') && (
+                                <div className="form-group">
+                                    <label>GPS Coordinates (Optional)</label>
+                                    <input
+                                        type="text"
+                                        value={formData.location.coordinates}
+                                        onChange={(e) => handleNestedChange('location', 'coordinates', e.target.value)}
+                                        placeholder="e.g., 44.4759° N, 73.2121° W"
+                                    />
+                                    <span className="field-hint">Format: XX.XXXX° N/S, XX.XXXX° E/W</span>
+                                </div>
+                            )}
                         </div>
                     )}
 
                     {/* Step 4: Time & Subject */}
-                    {currentStep === 4 && (
+                    {currentStepKey === 'timeSubject' && (
                         <div className="form-section">
                             <h3>Time Period (When)</h3>
                             
@@ -510,116 +622,142 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                                 </div>
                             </div>
 
+                            {rules.showHistoricalEra && (
                             <div className="form-group">
                                 <label>Historical Era/Period</label>
                                 <input
-                                    type="text"
-                                    value={formData.timePeriod.era}
-                                    onChange={(e) => handleNestedChange('timePeriod', 'era', e.target.value)}
-                                    placeholder="e.g., Contemporary, Medieval, 19th Century"
+                                type="text"
+                                value={formData.timePeriod.era}
+                                onChange={(e) => handleNestedChange('timePeriod', 'era', e.target.value)}
+                                placeholder="e.g., Contemporary, Medieval, 19th Century"
                                 />
                             </div>
+                            )}
 
-                            <hr className="section-divider" />
-
-                            <h3>Subject (Who)</h3>
                             
-                            <div className="form-group">
-                                <label>Subject Name</label>
-                                <input
-                                    type="text"
-                                    value={formData.subject.name}
-                                    onChange={(e) => handleNestedChange('subject', 'name', e.target.value)}
-                                    placeholder="Name of person, group, or entity"
-                                />
-                            </div>
+                            {rules.showSubject && (
+                                <>
+                                    <hr className="section-divider" />
 
-                            <div className="form-group checkbox-group">
-                                <label className="checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.subject.isPseudonym}
-                                        onChange={(e) => handleNestedChange('subject', 'isPseudonym', e.target.checked)}
-                                    />
-                                    <span>This is a pseudonym (protect identity)</span>
-                                </label>
-                            </div>
+                                    <h3>Subject (Who)</h3>
 
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Role/Occupation</label>
-                                    <input
-                                        type="text"
-                                        value={formData.subject.role}
-                                        onChange={(e) => handleNestedChange('subject', 'role', e.target.value)}
-                                        placeholder="e.g., Artisan, Elder, Teacher"
-                                    />
-                                </div>
+                                    {isFieldEnabled('subject', 'name') && (
+                                        <div className="form-group">
+                                            <label>Subject Name</label>
+                                            <input
+                                                type="text"
+                                                value={formData.subject.name}
+                                                onChange={(e) => handleNestedChange('subject', 'name', e.target.value)}
+                                                placeholder="Name of person, group, or entity"
+                                            />
+                                        </div>
+                                    )}
 
-                                <div className="form-group">
-                                    <label>Community/Group</label>
-                                    <input
-                                        type="text"
-                                        value={formData.subject.community}
-                                        onChange={(e) => handleNestedChange('subject', 'community', e.target.value)}
-                                        placeholder="e.g., Abenaki, Local residents"
-                                    />
-                                </div>
-                            </div>
+                                    {isFieldEnabled('subject', 'isPseudonym') && (
+                                        <div className="form-group checkbox-group">
+                                            <label className="checkbox-label">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.subject.isPseudonym}
+                                                    onChange={(e) => handleNestedChange('subject', 'isPseudonym', e.target.checked)}
+                                                />
+                                                <span>This is a pseudonym (protect identity)</span>
+                                            </label>
+                                        </div>
+                                    )}
+
+                                    {(isFieldEnabled('subject', 'role') || isFieldEnabled('subject', 'community')) && (
+                                        <div className="form-row">
+                                            {isFieldEnabled('subject', 'role') && (
+                                                <div className="form-group">
+                                                    <label>Role/Occupation</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.subject.role}
+                                                        onChange={(e) => handleNestedChange('subject', 'role', e.target.value)}
+                                                        placeholder="e.g., Artisan, Elder, Teacher"
+                                                    />
+                                                </div>
+                                            )}
+                                            {isFieldEnabled('subject', 'community') && (
+                                                <div className="form-group">
+                                                    <label>Community/Group</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.subject.community}
+                                                        onChange={(e) => handleNestedChange('subject', 'community', e.target.value)}
+                                                        placeholder="e.g., Abenaki, Local residents"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
                         </div>
                     )}
 
                     {/* Step 5: Physical Details */}
-                    {currentStep === 5 && (
+                    {currentStepKey === 'physical' && rules.showPhysical && (
                         <div className="form-section">
                             <h3>Physical Description</h3>
-                            
-                            <div className="form-group">
-                                <label>Materials</label>
-                                <input
-                                    type="text"
-                                    value={formData.physicalDescription.materials}
-                                    onChange={(e) => handleNestedChange('physicalDescription', 'materials', e.target.value)}
-                                    placeholder="e.g., Sweetgrass, ash wood, natural dyes"
-                                />
-                            </div>
 
-                            <div className="form-row">
+                            {isFieldEnabled('physicalDescription', 'materials') && (
                                 <div className="form-group">
-                                    <label>Physical Dimensions</label>
+                                    <label>Materials</label>
                                     <input
                                         type="text"
-                                        value={formData.physicalDescription.dimensions}
-                                        onChange={(e) => handleNestedChange('physicalDescription', 'dimensions', e.target.value)}
-                                        placeholder="e.g., 12 inches diameter"
+                                        value={formData.physicalDescription.materials}
+                                        onChange={(e) => handleNestedChange('physicalDescription', 'materials', e.target.value)}
+                                        placeholder="e.g., Sweetgrass, ash wood, natural dyes"
                                     />
                                 </div>
+                            )}
 
+                            {(isFieldEnabled('physicalDescription', 'dimensions') || isFieldEnabled('physicalDescription', 'weight')) && (
+                                <div className="form-row">
+                                    {isFieldEnabled('physicalDescription', 'dimensions') && (
+                                        <div className="form-group">
+                                            <label>Physical Dimensions</label>
+                                            <input
+                                                type="text"
+                                                value={formData.physicalDescription.dimensions}
+                                                onChange={(e) => handleNestedChange('physicalDescription', 'dimensions', e.target.value)}
+                                                placeholder="e.g., 12 inches diameter"
+                                            />
+                                        </div>
+                                    )}
+                                    {isFieldEnabled('physicalDescription', 'weight') && (
+                                        <div className="form-group">
+                                            <label>Weight</label>
+                                            <input
+                                                type="text"
+                                                value={formData.physicalDescription.weight}
+                                                onChange={(e) => handleNestedChange('physicalDescription', 'weight', e.target.value)}
+                                                placeholder="e.g., 1.5 lbs"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {isFieldEnabled('physicalDescription', 'condition') && (
                                 <div className="form-group">
-                                    <label>Weight</label>
+                                    <label>Condition</label>
                                     <input
                                         type="text"
-                                        value={formData.physicalDescription.weight}
-                                        onChange={(e) => handleNestedChange('physicalDescription', 'weight', e.target.value)}
-                                        placeholder="e.g., 1.5 lbs"
+                                        value={formData.physicalDescription.condition}
+                                        onChange={(e) => handleNestedChange('physicalDescription', 'condition', e.target.value)}
+                                        placeholder="e.g., Excellent - actively used"
                                     />
                                 </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Condition</label>
-                                <input
-                                    type="text"
-                                    value={formData.physicalDescription.condition}
-                                    onChange={(e) => handleNestedChange('physicalDescription', 'condition', e.target.value)}
-                                    placeholder="e.g., Excellent - actively used"
-                                />
-                            </div>
+                            )}
                         </div>
                     )}
 
                     {/* Step 6: Meaning */}
-                    {currentStep === 6 && (
+                    {currentStepKey === 'meaning' && (
                         <div className="form-section">
                             <h3>Function & Cultural Meaning</h3>
                             
@@ -645,59 +783,69 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                                 />
                             </div>
 
-                            <hr className="section-divider" />
-
-                            <h3>Student Analysis (Optional)</h3>
-                            
-                            <div className="form-group checkbox-group">
-                                <label className="checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.analysis.hasStudentWork}
-                                        onChange={(e) => handleNestedChange('analysis', 'hasStudentWork', e.target.checked)}
-                                    />
-                                    <span>This artifact has associated student work</span>
-                                </label>
-                            </div>
-
-                            {formData.analysis.hasStudentWork && (
+                            {rules.showStudentAnalysis && (
                                 <>
-                                    <div className="form-group">
-                                        <label>Course</label>
-                                        <input
-                                            type="text"
-                                            value={formData.analysis.course}
-                                            onChange={(e) => handleNestedChange('analysis', 'course', e.target.value)}
-                                            placeholder="e.g., ANTH 301 - Cultural Anthropology"
-                                        />
+                                    <hr className="section-divider" />
+
+                                    <h3>Student Analysis (Optional)</h3>
+
+                                    <div className="form-group checkbox-group">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.analysis.hasStudentWork}
+                                                onChange={(e) => handleNestedChange('analysis', 'hasStudentWork', e.target.checked)}
+                                            />
+                                            <span>This artifact has associated student work</span>
+                                        </label>
                                     </div>
 
-                                    <div className="form-group">
-                                        <label>Student Name</label>
-                                        <input
-                                            type="text"
-                                            value={formData.analysis.student}
-                                            onChange={(e) => handleNestedChange('analysis', 'student', e.target.value)}
-                                            placeholder="Student name"
-                                        />
-                                    </div>
+                                    {formData.analysis.hasStudentWork && (
+                                        <>
+                                            {isFieldEnabled('analysis', 'course') && (
+                                                <div className="form-group">
+                                                    <label>Course</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.analysis.course}
+                                                        onChange={(e) => handleNestedChange('analysis', 'course', e.target.value)}
+                                                        placeholder="e.g., ANTH 301 - Cultural Anthropology"
+                                                    />
+                                                </div>
+                                            )}
 
-                                    <div className="form-group">
-                                        <label>Analysis Summary</label>
-                                        <textarea
-                                            value={formData.analysis.summary}
-                                            onChange={(e) => handleNestedChange('analysis', 'summary', e.target.value)}
-                                            placeholder="Brief summary of student analysis"
-                                            rows="3"
-                                        />
-                                    </div>
+                                            {isFieldEnabled('analysis', 'student') && (
+                                                <div className="form-group">
+                                                    <label>Student Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.analysis.student}
+                                                        onChange={(e) => handleNestedChange('analysis', 'student', e.target.value)}
+                                                        placeholder="Student name"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {isFieldEnabled('analysis', 'summary') && (
+                                                <div className="form-group">
+                                                    <label>Analysis Summary</label>
+                                                    <textarea
+                                                        value={formData.analysis.summary}
+                                                        onChange={(e) => handleNestedChange('analysis', 'summary', e.target.value)}
+                                                        placeholder="Brief summary of student analysis"
+                                                        rows="3"
+                                                    />
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </>
                             )}
                         </div>
                     )}
 
                     {/* Step 7: Privacy & Consent */}
-                    {currentStep === 7 && (
+                    {currentStepKey === 'privacy' && (
                         <div className="form-section">
                             <h3>Privacy Settings</h3>
                             
@@ -888,38 +1036,39 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                     </button>
                     
                     <div className="footer-right">
-                        {currentStep > 1 && (
-                            <button 
-                                type="button"
-                                className="btn-secondary"
-                                onClick={handlePrevious}
+                        {currentIndex > 0 && (
+                            <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={handlePrevious}
                             >
-                                ← Previous
+                            ← Previous
                             </button>
                         )}
-                        
-                        {currentStep < steps.length ? (
-                            <button 
-                                type="button"
-                                className="btn-primary"
-                                onClick={handleNext}
+
+                        {currentIndex < visibleSteps.length - 1 ? (
+                            <button
+                            type="button"
+                            className="btn-primary"
+                            onClick={handleNext}
                             >
-                                Next →
+                            Next →
                             </button>
                         ) : (
-                            <button 
-                                type="button"
-                                className="btn-primary"
-                                onClick={handleSubmit}
-                                disabled={!formData.title || !formData.imagePreview}
+                            <button
+                            type="button"
+                            className="btn-primary"
+                            onClick={handleSubmit}
+                            disabled={!formData.title || !formData.type || !formData.imagePreview}
                             >
-                                Save Artifact
+                            Save Artifact
                             </button>
                         )}
                     </div>
                 </div>
             </div>
         </div>
+        </>
     );
 }
 
