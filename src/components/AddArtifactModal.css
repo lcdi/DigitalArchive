@@ -582,3 +582,210 @@
   background: #00A9E0;
   border-radius: 3px;
 }
+
+/* ── Custom Type Creator Modal ───────────────────────────────────────────── */
+
+.custom-type-overlay {
+  z-index: 2100;
+}
+
+.custom-type-modal {
+  max-width: 540px;
+}
+
+.custom-type-description {
+  color: #555;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+.custom-type-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sections-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.section-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s, background 0.15s;
+  background: #fafafa;
+}
+
+.section-toggle-row:hover {
+  border-color: #00A9E0;
+  background: #f0faff;
+}
+
+.section-toggle-row.enabled {
+  border-color: #00A9E0;
+  background: #e8f6fc;
+}
+
+.section-toggle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.section-toggle-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #222;
+}
+
+.section-toggle-desc {
+  font-size: 0.78rem;
+  color: #777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  flex-shrink: 0;
+  width: 42px;
+  height: 24px;
+  border-radius: 12px;
+  background: #ccc;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggle-switch.on {
+  background: #00A9E0;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+
+.toggle-switch.on .toggle-knob {
+  transform: translateX(18px);
+}
+
+/* Custom type badge in type dropdown */
+.custom-types-divider {
+  color: #aaa;
+  font-size: 0.75rem;
+}
+
+/* Section block wraps the row + its sub-fields */
+.section-block {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Actions area (chevron + toggle) */
+.section-toggle-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.expand-chevron {
+  font-size: 1.1rem;
+  color: #888;
+  transition: transform 0.2s;
+  line-height: 1;
+  display: inline-block;
+}
+
+.expand-chevron.open {
+  transform: rotate(180deg);
+  color: #00A9E0;
+}
+
+/* Sub-field rows */
+.section-subfields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 10px 10px 10px;
+  background: #f5fbfe;
+  border: 1px solid #c8e9f5;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.subfield-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+}
+
+.subfield-toggle-row:hover:not(.dimmed) {
+  background: #dff0fa;
+}
+
+.subfield-toggle-row.enabled {
+  background: #e4f4fc;
+}
+
+.subfield-toggle-row.dimmed {
+  opacity: 0.4;
+}
+
+.subfield-label {
+  font-size: 0.85rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Smaller toggle for sub-fields */
+.toggle-switch-sm {
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+}
+
+.toggle-switch-sm .toggle-knob {
+  width: 12px;
+  height: 12px;
+  top: 3px;
+  left: 3px;
+}
+
+.toggle-switch-sm.on .toggle-knob {
+  transform: translateX(14px);
+}
+
+/* Remove bottom radius when sub-fields panel is open below */
+.section-block .section-toggle-row.expanded-open {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
