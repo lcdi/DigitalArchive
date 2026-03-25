@@ -8,15 +8,16 @@
 /* ── Header ── */
 .view-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   padding: 1.25rem 1.75rem;
   background: #003C5F;
   border-bottom: 2px solid #00A9E0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   flex-wrap: wrap;
   position: sticky;
-  top: 0;
+  top: var(--site-header-height, 40px);
   z-index: 1100;
 }
 
@@ -24,6 +25,47 @@
   display: flex;
   align-items: flex-start;
   gap: 0.85rem;
+  flex: 1;
+}
+
+/* ── View mode toggle (center of header) ── */
+.view-header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.view-mode-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.view-mode-btn {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.85rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.view-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.view-mode-btn.active {
+  background: #00A9E0;
+  color: #fff;
 }
 
 .view-hamburger-btn {
@@ -87,9 +129,9 @@
 .view-header-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.6rem;
-  flex-shrink: 0;
-  padding-top: 0.15rem;
+  flex: 1;
 }
 
 .view-readonly-badge {
@@ -142,6 +184,12 @@
 
 .view-body.filter-open  { margin-left: 300px; }
 .view-body.detail-open  { margin-right: 450px; }
+
+/* ── Map mode body ── */
+.view-body--map {
+  padding: 0;
+  flex: 1;
+}
 
 .view-artifacts-list {
   display: flex;
@@ -209,4 +257,7 @@
   .view-body.detail-open  { margin-right: 0; }
   .view-header { padding: 1rem; }
   .view-body { padding: 1rem; }
+  .view-header-center { order: 3; flex-basis: 100%; justify-content: center; }
+  .view-mode-toggle { width: 100%; justify-content: center; }
+  .view-mode-btn { flex: 1; text-align: center; }
 }
