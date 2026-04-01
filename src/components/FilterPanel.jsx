@@ -4,13 +4,15 @@ import './FilterPanel.css'
 export default function FilterPanel({ isOpen, onClose, filterOptions, onFilterChange }) {
   const [activeFilters, setActiveFilters] = useState([])
   const [dateRange, setDateRange] = useState({ start: '', end: '' })
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const emit = (filters, dr) => {
+  const emit = (filters, dr, sq = searchQuery) => {
     onFilterChange({
-      tags:      filters.filter(f => f.type === 'tag').map(f => f.value),
-      fileTypes: filters.filter(f => f.type === 'fileType').map(f => f.value),
-      uploaders: filters.filter(f => f.type === 'uploader').map(f => f.value),
-      dateRange: dr,
+      tags:        filters.filter(f => f.type === 'tag').map(f => f.value),
+      fileTypes:   filters.filter(f => f.type === 'fileType').map(f => f.value),
+      uploaders:   filters.filter(f => f.type === 'uploader').map(f => f.value),
+      dateRange:   dr,
+      searchQuery: sq,
     })
   }
 
@@ -34,13 +36,19 @@ export default function FilterPanel({ isOpen, onClose, filterOptions, onFilterCh
     emit(activeFilters, dr)
   }
 
+  const updateSearch = (value) => {
+    setSearchQuery(value)
+    emit(activeFilters, dateRange, value)
+  }
+
   const clearAll = () => {
     setActiveFilters([])
     setDateRange({ start: '', end: '' })
-    onFilterChange({ tags: [], fileTypes: [], uploaders: [], dateRange: { start: '', end: '' } })
+    setSearchQuery('')
+    onFilterChange({ tags: [], fileTypes: [], uploaders: [], dateRange: { start: '', end: '' }, searchQuery: '' })
   }
 
-  const hasActive = activeFilters.length > 0 || dateRange.start || dateRange.end
+  const hasActive = activeFilters.length > 0 || dateRange.start || dateRange.end || searchQuery
   const available = (type, list) => list.filter(v => !activeFilters.some(f => f.type === type && f.value === v))
   const chipLabel = (f) => f.type === 'fileType' ? (f.value.split('/')[1] || f.value).toUpperCase() : f.value
   const typeLabel = (type) => ({ tag: 'Tag', fileType: 'Type', uploader: 'By' }[type] ?? type)
@@ -54,6 +62,17 @@ export default function FilterPanel({ isOpen, onClose, filterOptions, onFilterCh
 
       <div className="filter-content">
 
+        <div className="filter-search-section">
+          <input
+            className="filter-search-input"
+            type="search"
+            placeholder="Search all fields…"
+            value={searchQuery}
+            onChange={e => updateSearch(e.target.value)}
+            aria-label="Search artifacts"
+          />
+        </div>
+
         {hasActive && (
           <div className="active-filters-section">
             <div className="active-filters-title-row">
@@ -61,6 +80,13 @@ export default function FilterPanel({ isOpen, onClose, filterOptions, onFilterCh
               <button className="clear-all-btn" onClick={clearAll}>Clear all</button>
             </div>
             <div className="filter-chips">
+              {searchQuery && (
+                <span className="filter-chip filter-chip--search">
+                  <span className="chip-kind">Search</span>
+                  <span className="chip-value">{searchQuery}</span>
+                  <button className="chip-remove" onClick={() => updateSearch('')}>×</button>
+                </span>
+              )}
               {activeFilters.map(f => (
                 <span key={`${f.type}:${f.value}`} className={`filter-chip filter-chip--${f.type}`}>
                   <span className="chip-kind">{typeLabel(f.type)}</span>
