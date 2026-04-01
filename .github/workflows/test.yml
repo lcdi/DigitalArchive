@@ -1,4 +1,24 @@
 name: test.yml
 on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run test
+
+
