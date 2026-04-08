@@ -7,10 +7,15 @@ import { downloadArtifact } from '../utils/downloadArtifact.js';
  * @prop {Function} onClick
  * @prop {boolean}  isAdmin  – when false, hides private/IRB badges and pseudonym markers
  */
-function ArtifactCard({ artifact, onClick, isAdmin = false }) {
+function ArtifactCard({ artifact, onClick, isAdmin = false, canEdit = false, onEdit }) {
     const handleDownload = async (e) => {
         e.stopPropagation();
         await downloadArtifact(artifact);
+    };
+
+    const handleEdit = (e) => {
+        e.stopPropagation();
+        onEdit(artifact);
     };
 
     // Viewers see the subject name as-is; the "(Pseudonym)" note is admin-only context
@@ -31,13 +36,24 @@ function ArtifactCard({ artifact, onClick, isAdmin = false }) {
             <div className="artifact-info">
                 <div className="artifact-header">
                     <h3>{artifact.title}</h3>
-                    <button
-                        className="download-btn-card"
-                        onClick={handleDownload}
-                        aria-label={`Download ${artifact.title}`}
-                    >
-                        Download
-                    </button>
+                    <div className="artifact-actions">
+                        {canEdit && (
+                            <button
+                                className="edit-btn-card"
+                                onClick={handleEdit}
+                                aria-label={`Edit ${artifact.title}`}
+                            >
+                                Edit
+                            </button>
+                        )}
+                        <button
+                            className="download-btn-card"
+                            onClick={handleDownload}
+                            aria-label={`Download ${artifact.title}`}
+                        >
+                            Download
+                        </button>
+                    </div>
                 </div>
 
                 {/* Subject & Location Preview */}
