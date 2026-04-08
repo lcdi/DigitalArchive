@@ -1,6 +1,39 @@
 import './DetailPanel.css';
 import { downloadArtifact } from '../utils/downloadArtifact.js';
 
+function MediaPreview({ artifact }) {
+    const { fileType, image, title } = artifact;
+    if (!image) return null;
+
+    if (fileType?.startsWith('audio/')) {
+        return (
+            <div className="detail-media detail-media--audio">
+                <div className="detail-media-icon" aria-hidden="true">🎵</div>
+                <p className="detail-media-filename">{title}</p>
+                <audio controls src={image} className="detail-audio">
+                    Your browser does not support audio playback.
+                </audio>
+            </div>
+        );
+    }
+
+    if (fileType?.startsWith('video/')) {
+        return (
+            <div className="detail-media detail-media--video">
+                <video controls src={image} className="detail-video">
+                    Your browser does not support video playback.
+                </video>
+            </div>
+        );
+    }
+
+    return (
+        <div className="detail-image">
+            <img src={image} alt={title} />
+        </div>
+    );
+}
+
 /**
  * DetailPanel
  * @prop {Object}   artifact
@@ -40,9 +73,7 @@ function DetailPanel({ artifact, isOpen, onClose, isAdmin = false }) {
                     </div>
                 )}
 
-                <div className="detail-image">
-                    <img src={artifact.image} alt={artifact.title} />
-                </div>
+                <MediaPreview artifact={artifact} />
 
                 <button
                     className="download-btn-detail"
