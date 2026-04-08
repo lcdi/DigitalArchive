@@ -9,6 +9,7 @@ import AddArtifactModal from '../../components/AddArtifactModal'
 import { usePermissions } from '../../context/AuthContext'
 import { artifacts as initialArtifacts, filterOptions } from '../../data/artifacts'
 import { collectionsMeta, isCollectionPrivate } from '../../data/collectionsMeta'
+import { matchesSearch } from '../../utils/searchArtifacts'
 
 function ArchivePage() {
 
@@ -98,7 +99,8 @@ function ArchivePage() {
     tags: [],
     fileTypes: [],
     uploaders: [],
-    dateRange: { start: '', end: '' }
+    dateRange: { start: '', end: '' },
+    searchQuery: '',
   })
 
   // Viewers only see artifacts where publicAccess is true (or undefined, treated as public)
@@ -153,6 +155,7 @@ function ArchivePage() {
         if (filters.dateRange.start && artifactDate < new Date(filters.dateRange.start)) return false
         if (filters.dateRange.end   && artifactDate > new Date(filters.dateRange.end))   return false
       }
+      if (!matchesSearch(artifact, filters.searchQuery)) return false
       return true
     })
   }, [filters, visibleArtifacts, activeCollection])

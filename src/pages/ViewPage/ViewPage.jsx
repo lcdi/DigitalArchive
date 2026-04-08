@@ -7,6 +7,7 @@ import ArtifactCard from '../../components/ArtifactCard'
 import FilterPanel from '../../components/FilterPanel'
 import DetailPanel from '../../components/DetailPanel'
 import MapView from '../../components/MapView'
+import { matchesSearch } from '../../utils/searchArtifacts'
 import './ViewPage.css'
 
 export default function ViewPage() {
@@ -20,7 +21,8 @@ export default function ViewPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [filters, setFilters] = useState({
     tags: [], fileTypes: [], uploaders: [],
-    dateRange: { start: '', end: '' }
+    dateRange: { start: '', end: '' },
+    searchQuery: '',
   })
 
   const isAdmin = !!user
@@ -90,13 +92,15 @@ export default function ViewPage() {
         if (filters.dateRange.start && d < new Date(filters.dateRange.start)) return false
         if (filters.dateRange.end   && d > new Date(filters.dateRange.end))   return false
       }
+      if (!matchesSearch(a, filters.searchQuery)) return false
       return true
     })
   }, [collectionArtifacts, filters])
 
   const activeFilterCount =
     filters.tags.length + filters.fileTypes.length + filters.uploaders.length +
-    (filters.dateRange.start ? 1 : 0) + (filters.dateRange.end ? 1 : 0)
+    (filters.dateRange.start ? 1 : 0) + (filters.dateRange.end ? 1 : 0) +
+    (filters.searchQuery ? 1 : 0)
 
   const handleArtifactClick = (artifact) => {
     setSelectedArtifact(artifact)
