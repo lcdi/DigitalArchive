@@ -78,21 +78,31 @@
   text-overflow: ellipsis;
 }
 
-.download-btn-card {
+.artifact-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
   flex-shrink: 0;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.25rem 0.65rem;
-  border-radius: 5px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
-  cursor: pointer;
-  transition: background 0.15s;
 }
-.download-btn-card:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+
+.artifact-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.artifact-icon-btn:hover {
+  background: #f1f5f9;
+  color: #475569;
 }
 
 /* ── Preview row ── */
