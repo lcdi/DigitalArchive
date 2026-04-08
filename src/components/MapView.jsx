@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Tooltip } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import './MapView.css'
+import { getArtifactLocation } from '../utils/getArtifactLocation'
 
 // Branded SVG pin icon using app color palette
 function makeIcon() {
@@ -21,16 +22,6 @@ function makeIcon() {
 
 const pinIcon = makeIcon()
 
-function parseCoordinates(coordStr) {
-  if (!coordStr) return null
-  const match = coordStr.match(/([0-9.]+)[°\s]*([NS]),\s*([0-9.]+)[°\s]*([EW])/i)
-  if (!match) return null
-  let lat = parseFloat(match[1])
-  let lng = parseFloat(match[3])
-  if (match[2].toUpperCase() === 'S') lat = -lat
-  if (match[4].toUpperCase() === 'W') lng = -lng
-  return [lat, lng]
-}
 
 function ArtifactTooltipContent({ artifact }) {
   const loc = artifact.location
@@ -69,16 +60,16 @@ function ArtifactTooltipContent({ artifact }) {
 export default function MapView({ artifacts, onArtifactClick }) {
   const pinned = useMemo(() =>
     artifacts
-      .map(a => ({ artifact: a, coords: parseCoordinates(a.location?.coordinates) }))
-      .filter(({ coords }) => coords !== null),
+      .map(a => ({ artifact: a, location: getArtifactLocation(a) }))
+      .filter(({ location }) => location?.type === 'coordinates'),
     [artifacts]
   )
 
   const center = useMemo(() => {
     if (pinned.length === 0) return [20, 0]
     return [
-      pinned.reduce((s, { coords }) => s + coords[0], 0) / pinned.length,
-      pinned.reduce((s, { coords }) => s + coords[1], 0) / pinned.length,
+      pinned.reduce((s, { location }) => s + location.coords[0], 0) / pinned.length,
+      pinned.reduce((s, { location }) => s + location.coords[1], 0) / pinned.length,
     ]
   }, [pinned])
 
@@ -91,10 +82,10 @@ export default function MapView({ artifacts, onArtifactClick }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {pinned.map(({ artifact, coords }) => (
+        {pinned.map(({ artifact, location }) => (
           <Marker
             key={artifact.id}
-            position={coords}
+            position={location.coords}
             icon={pinIcon}
             eventHandlers={{ click: () => onArtifactClick(artifact) }}
           >
