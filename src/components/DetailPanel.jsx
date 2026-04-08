@@ -2,15 +2,15 @@ import './DetailPanel.css';
 import { downloadArtifact } from '../utils/downloadArtifact.js';
 
 function MediaPreview({ artifact }) {
-    const { fileType, image, title } = artifact;
-    if (!image) return null;
+    const { fileType, image, filePath, title } = artifact;
 
     if (fileType?.startsWith('audio/')) {
+        if (!filePath) return null;
         return (
             <div className="detail-media detail-media--audio">
                 <div className="detail-media-icon" aria-hidden="true">🎵</div>
                 <p className="detail-media-filename">{title}</p>
-                <audio controls src={image} className="detail-audio">
+                <audio controls src={filePath} className="detail-audio">
                     Your browser does not support audio playback.
                 </audio>
             </div>
@@ -18,15 +18,17 @@ function MediaPreview({ artifact }) {
     }
 
     if (fileType?.startsWith('video/')) {
+        if (!filePath) return null;
         return (
             <div className="detail-media detail-media--video">
-                <video controls src={image} className="detail-video">
+                <video controls src={filePath} className="detail-video">
                     Your browser does not support video playback.
                 </video>
             </div>
         );
     }
 
+    if (!image) return null;
     return (
         <div className="detail-image">
             <img src={image} alt={title} />
