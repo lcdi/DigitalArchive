@@ -9,17 +9,17 @@
  * isPrivate: false → anyone with the share link can view (default).
  */
 export const collectionsMeta = {
-  // Derived from artifacts with first tag "craftwork" — public archive
-  'craftwork': {
-    label: 'Craftwork & Material Culture',
-    description: 'Documented material artifacts including traditional crafts, tools, and everyday objects from field research.',
+  // Vermont Field Research — artifacts documented in the Greater Burlington, VT area
+  'vermont-field-research': {
+    label: 'Vermont Field Research',
+    description: 'Ethnographic fieldwork conducted across the Greater Burlington, Vermont area, documenting regional cultural practices, diaspora communities, indigenous traditions, and material culture.',
     isPrivate: false,
   },
-  // Derived from artifacts with first tag "historical" — restricted archive
-  'historical': {
-    label: 'Historical Documentation',
-    description: 'Archival photographs and field notes from historical site documentation. Contains sensitive pre-event records.',
-    isPrivate: true,
+  // Global Ethnographic Archive — international fieldwork across multiple continents
+  'global-ethnography': {
+    label: 'Global Ethnographic Archive',
+    description: 'International ethnographic documentation spanning multiple continents — capturing diverse cultural practices, oral traditions, ritual life, and community knowledge from field researchers worldwide.',
+    isPrivate: false,
   },
 }
 
