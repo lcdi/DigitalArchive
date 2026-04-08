@@ -9,7 +9,7 @@ import AddArtifactModal from '../../components/AddArtifactModal'
 import { usePermissions } from '../../context/AuthContext'
 import { artifacts as initialArtifacts, filterOptions } from '../../data/artifacts'
 import { collectionsMeta, isCollectionPrivate } from '../../data/collectionsMeta'
-import { matchesSearch } from '../../utils/searchArtifacts'
+import { applyFilters } from '../../utils/filterArtifacts'
 
 function ArchivePage() {
 
@@ -140,24 +140,7 @@ function ArchivePage() {
         base = visibleArtifacts.filter(a => a.tags[0] === activeCollection.id && !a.collectionId)
       }
     }
-    return base.filter(artifact => {
-      if (filters.tags.length > 0) {
-        if (!artifact.tags.some(tag => filters.tags.includes(tag))) return false
-      }
-      if (filters.fileTypes.length > 0) {
-        if (!filters.fileTypes.includes(artifact.fileType)) return false
-      }
-      if (filters.uploaders.length > 0) {
-        if (!filters.uploaders.includes(artifact.uploader)) return false
-      }
-      if (filters.dateRange.start || filters.dateRange.end) {
-        const artifactDate = new Date(artifact.uploadDate)
-        if (filters.dateRange.start && artifactDate < new Date(filters.dateRange.start)) return false
-        if (filters.dateRange.end   && artifactDate > new Date(filters.dateRange.end))   return false
-      }
-      if (!matchesSearch(artifact, filters.searchQuery)) return false
-      return true
-    })
+    return applyFilters(base, filters)
   }, [filters, visibleArtifacts, activeCollection])
 
   const handleArtifactClick = (artifact) => {
