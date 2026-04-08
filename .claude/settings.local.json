@@ -4,6 +4,7 @@
       "Bash(npm install:*)",
       "Bash(npx vitest:*)",
       "Bash(gh pr:*)"
+      "Bash(npm test:*)"
     ]
   }
 }
