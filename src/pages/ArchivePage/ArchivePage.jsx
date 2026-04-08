@@ -27,6 +27,7 @@ function ArchivePage() {
   const [isNewCollectionModalOpen, setIsNewCollectionModalOpen] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState('')
   const [addTargetCollectionId, setAddTargetCollectionId] = useState(null)
+  const [editingArtifact, setEditingArtifact] = useState(null)
   const [copiedCollectionId, setCopiedCollectionId] = useState(null)
   // Stores per-session edits to collection name/description/privacy
   const [collectionOverrides, setCollectionOverrides] = useState({})
@@ -171,8 +172,21 @@ function ArchivePage() {
   }
 
   const handleSaveArtifact = (newArtifact) => {
-    setArtifacts(prev => [newArtifact, ...prev])
+    if (editingArtifact) {
+      // Replace the existing artifact in the list by id
+      setArtifacts(prev => prev.map(a => a.id === newArtifact.id ? newArtifact : a))
+      // Keep the detail panel in sync with the updated artifact
+      setSelectedArtifact(newArtifact)
+      setEditingArtifact(null)
+    } else {
+      setArtifacts(prev => [newArtifact, ...prev])
+    }
     setIsAddModalOpen(false)
+  }
+
+  const handleEditArtifact = (artifact) => {
+    setEditingArtifact(artifact)
+    setIsAddModalOpen(true)
   }
 
   const handleOpenCollection = (collection) => {
@@ -307,6 +321,8 @@ function ArchivePage() {
                   artifact={artifact}
                   onClick={handleArtifactClick}
                   isAdmin={perms.isAdmin}
+                  canEdit={perms.canEditArtifacts}
+                  onEdit={handleEditArtifact}
                 />
               ))
             ) : (
@@ -329,10 +345,11 @@ function ArchivePage() {
       {perms.canAddArtifacts && (
         <AddArtifactModal
           isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
+          onClose={() => { setIsAddModalOpen(false); setEditingArtifact(null) }}
           onSave={handleSaveArtifact}
           collections={manualCollections}
           targetCollectionId={addTargetCollectionId}
+          artifact={editingArtifact}
         />
       )}
 

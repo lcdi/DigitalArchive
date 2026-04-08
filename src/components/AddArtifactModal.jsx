@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import './AddArtifactModal.css';
 import CreateCustomTypeModal from './CreateCustomTypeModal';
 
-function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCollectionId = null }) {
+function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCollectionId = null, artifact = null }) {
+    const isEditing = artifact !== null;
     const [currentStepKey, setCurrentStepKey] = useState('basic');
     const [showCustomTypeCreator, setShowCustomTypeCreator] = useState(false);
     const [customTypes, setCustomTypes] = useState(() => {
@@ -109,6 +110,45 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
             setFormData(prev => ({ ...prev, collectionId: targetCollectionId || null }));
         }
     }, [isOpen, targetCollectionId]);
+
+    // When opening in edit mode, pre-fill the form with the existing artifact's data
+    useEffect(() => {
+        if (isOpen && artifact) {
+            setFormData({
+                title: artifact.title || '',
+                type: artifact.type || '',
+                image: null,
+                imagePreview: artifact.image || '',
+                tags: artifact.tags || [],
+                tagInput: '',
+                uploader: artifact.uploader || '',
+                fileType: artifact.fileType || '',
+                fileSize: artifact.fileSize || '',
+                dimensions: artifact.dimensions || '',
+                collectionId: artifact.collectionId || null,
+                context: artifact.context || '',
+                description: artifact.description || '',
+                location: artifact.location || { place: '', city: '', state: '', country: '', coordinates: '' },
+                timePeriod: artifact.timePeriod || { created: '', documented: '', era: '' },
+                subject: artifact.subject || { name: '', isPseudonym: false, role: '', community: '' },
+                physicalDescription: artifact.physicalDescription || { materials: '', dimensions: '', condition: '', weight: '' },
+                function: artifact.function || '',
+                meaning: artifact.meaning || '',
+                transcript: artifact.transcript || '',
+                additionalMedia: artifact.additionalMedia || [],
+                analysis: artifact.analysis || { hasStudentWork: false, course: '', student: '', summary: '' },
+                privacy: artifact.privacy || { level: 'Public Domain', publicAccess: true, identityProtected: false, notes: '' },
+                consent: artifact.consent || {
+                    formSigned: false,
+                    dateSigned: '',
+                    permissions: { archiveUse: true, classroomUse: true, publicDisplay: true, commercialUse: false },
+                    irbApproved: false,
+                    irbNumber: '',
+                    irbDate: ''
+                }
+            });
+        }
+    }, [isOpen, artifact]);
 
     const matchedCustomType = customTypes.find(ct => ct.name === formData.type);
     const rules = matchedCustomType ? matchedCustomType.rules : {
@@ -235,16 +275,16 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
     };
 
     const handleSubmit = () => {
-        // Create artifact object
         const newArtifact = {
-            id: Date.now(),
+            // In edit mode keep the original id and uploadDate, otherwise generate new ones
+            id: isEditing ? artifact.id : Date.now(),
             title: formData.title,
             type: formData.type,
-            image: formData.imagePreview, // In production, this would be uploaded to server
+            image: formData.imagePreview,
             collectionId: formData.collectionId || null,
             tags: formData.tags,
             uploader: formData.uploader || 'Current User',
-            uploadDate: new Date().toISOString().split('T')[0],
+            uploadDate: isEditing ? artifact.uploadDate : new Date().toISOString().split('T')[0],
             fileType: formData.fileType,
             fileSize: formData.fileSize,
             dimensions: formData.dimensions,
@@ -317,7 +357,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
         <div className="modal-overlay">
             <div className="modal-container">
                 <div className="modal-header">
-                    <h2>Add New Artifact</h2>
+                    <h2>{isEditing ? 'Edit Artifact' : 'Add New Artifact'}</h2>
                     <button className="modal-close-btn" onClick={handleClose}>×</button>
                 </div>
 
@@ -1061,7 +1101,7 @@ function AddArtifactModal({ isOpen, onClose, onSave, collections = [], targetCol
                             onClick={handleSubmit}
                             disabled={!formData.title || !formData.type || !formData.imagePreview}
                             >
-                            Save Artifact
+                            {isEditing ? 'Save Changes' : 'Save Artifact'}
                             </button>
                         )}
                     </div>
