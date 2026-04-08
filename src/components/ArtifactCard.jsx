@@ -20,6 +20,13 @@ function ArtifactCard({ artifact, onClick, isAdmin = false }) {
         <div className="artifact-card" onClick={() => onClick(artifact)}>
             <div className="artifact-image">
                 <img src={artifact.image} alt={artifact.title} />
+                {/* Media-type overlay for audio / video */}
+                {artifact.fileType?.startsWith('audio/') && (
+                    <div className="media-type-overlay" aria-label="Audio file">🎵</div>
+                )}
+                {artifact.fileType?.startsWith('video/') && (
+                    <div className="media-type-overlay media-type-overlay--video" aria-label="Video file">▶</div>
+                )}
                 {/* Privacy lock overlay — admin only */}
                 {isAdmin && artifact.privacy?.identityProtected && (
                     <div className="privacy-overlay">
