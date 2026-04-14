@@ -7,7 +7,7 @@ import { downloadArtifact } from '../utils/downloadArtifact.js';
  * @prop {Function} onClick
  * @prop {boolean}  isAdmin  – when false, hides private/IRB badges and pseudonym markers
  */
-function ArtifactCard({ artifact, onClick, isAdmin = false }) {
+function ArtifactCard({ artifact, onClick, isAdmin = false, layout = 'list' }) {
     const handleDownload = async (e) => {
         e.stopPropagation();
         await downloadArtifact(artifact);
@@ -17,7 +17,7 @@ function ArtifactCard({ artifact, onClick, isAdmin = false }) {
     const showPseudonymMarker = isAdmin && artifact.subject?.isPseudonym;
 
     return (
-        <div className="artifact-card" onClick={() => onClick(artifact)}>
+        <div className={`artifact-card${layout === 'grid' ? ' artifact-card--grid' : ''}`} onClick={() => onClick(artifact)}>
             <div className="artifact-image">
                 <img src={artifact.image} alt={artifact.title} />
                 {/* Media-type overlay for audio / video */}

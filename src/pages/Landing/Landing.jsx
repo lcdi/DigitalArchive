@@ -282,12 +282,13 @@ export default function Landing() {
 
         {filteredArtifacts.length > 0 ? (
           <div className="landing-artifacts-list">
-            {filteredArtifacts.map(artifact => (
+            {filteredArtifacts.slice(0, 40).map(artifact => (
               <ArtifactCard
                 key={artifact.id}
                 artifact={artifact}
                 onClick={handleArtifactClick}
                 isAdmin={false}
+                layout="grid"
               />
             ))}
           </div>
