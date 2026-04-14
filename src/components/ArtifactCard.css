@@ -105,6 +105,43 @@
   color: #475569;
 }
 
+/* ── Citation dropdown ── */
+.citation-wrapper {
+  position: relative;
+}
+
+.citation-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  z-index: 100;
+  min-width: 110px;
+}
+
+.citation-format-btn {
+  display: block;
+  width: 100%;
+  padding: 7px 14px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.citation-format-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
 /* ── Preview row ── */
 .artifact-preview {
   display: flex;
