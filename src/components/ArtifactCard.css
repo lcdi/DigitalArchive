@@ -41,6 +41,25 @@
   color: transparent;
 }
 
+/* Media-type badge (audio 🎵 / video ▶) */
+.media-type-overlay {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(0, 60, 95, 0.75);
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 0.65rem;
+  line-height: 1.4;
+  color: #fff;
+  pointer-events: none;
+}
+
+.media-type-overlay--video {
+  background: rgba(0, 0, 0, 0.6);
+  font-size: 0.75rem;
+}
+
 .privacy-overlay {
   position: absolute;
   bottom: 3px;
