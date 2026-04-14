@@ -7,6 +7,7 @@ import ArtifactCard from '../../components/ArtifactCard'
 import FilterPanel from '../../components/FilterPanel'
 import DetailPanel from '../../components/DetailPanel'
 import MapView from '../../components/MapView'
+import TimelineView from '../../components/TimelineView'
 import { matchesSearch } from '../../utils/searchArtifacts'
 import './ViewPage.css'
 
@@ -51,22 +52,6 @@ export default function ViewPage() {
     document.title = `${archiveTitle} — Backstory`
   }, [archiveTitle])
 
-  if (isPrivate && !isAdmin) {
-    return (
-      <div className="view-access-denied">
-        <div className="denied-card">
-          <div className="denied-lock">🔒</div>
-          <h1>Access Denied</h1>
-          <p>You need permission to view <strong>{archiveTitle}</strong>.</p>
-          <p className="denied-sub">
-            This archive is restricted. If you believe you should have access, contact the archive administrator.
-          </p>
-          <button className="denied-login-btn" onClick={() => navigate('/')}>Sign In</button>
-        </div>
-      </div>
-    )
-  }
-
   const collectionArtifacts = useMemo(() => {
     return artifacts.filter(a => {
       const inCollection = a.collectionId === collectionId || a.tags?.[0] === collectionId
@@ -101,6 +86,22 @@ export default function ViewPage() {
     filters.tags.length + filters.fileTypes.length + filters.uploaders.length +
     (filters.dateRange.start ? 1 : 0) + (filters.dateRange.end ? 1 : 0) +
     (filters.searchQuery ? 1 : 0)
+
+  if (isPrivate && !isAdmin) {
+    return (
+      <div className="view-access-denied">
+        <div className="denied-card">
+          <div className="denied-lock">🔒</div>
+          <h1>Access Denied</h1>
+          <p>You need permission to view <strong>{archiveTitle}</strong>.</p>
+          <p className="denied-sub">
+            This archive is restricted. If you believe you should have access, contact the archive administrator.
+          </p>
+          <button className="denied-login-btn" onClick={() => navigate('/')}>Sign In</button>
+        </div>
+      </div>
+    )
+  }
 
   const handleArtifactClick = (artifact) => {
     setSelectedArtifact(artifact)
@@ -150,6 +151,13 @@ export default function ViewPage() {
               ⊞ Cards
             </button>
             <button
+              className={`view-mode-btn ${viewMode === 'timeline' ? 'active' : ''}`}
+              onClick={() => setViewMode('timeline')}
+              aria-label="Timeline view"
+            >
+              ⏱ Timeline
+            </button>
+            <button
               className={`view-mode-btn ${viewMode === 'map' ? 'active' : ''}`}
               onClick={() => setViewMode('map')}
               aria-label="Map view"
@@ -168,9 +176,14 @@ export default function ViewPage() {
         </div>
       </header>
 
-      <div className={`view-body${viewMode === 'map' ? ' view-body--map' : ''}${viewMode === 'cards' && isFilterOpen ? ' filter-open' : ''}${viewMode === 'cards' && isDetailOpen ? ' detail-open' : ''}`}>
+      <div className={`view-body${viewMode === 'map' ? ' view-body--map' : ''}${viewMode === 'cards' && isFilterOpen ? ' filter-open' : ''}${viewMode === 'cards' && isDetailOpen ? ' detail-open' : ''}${viewMode === 'timeline' && isFilterOpen ? ' filter-open' : ''}${viewMode === 'timeline' && isDetailOpen ? ' detail-open' : ''}`}>
         {viewMode === 'map' ? (
           <MapView
+            artifacts={filteredArtifacts}
+            onArtifactClick={handleArtifactClick}
+          />
+        ) : viewMode === 'timeline' ? (
+          <TimelineView
             artifacts={filteredArtifacts}
             onArtifactClick={handleArtifactClick}
           />
