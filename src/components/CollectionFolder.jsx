@@ -3,6 +3,7 @@ import './CollectionFolder.css'
 
 export default function CollectionFolder({
   collection,
+  artifactCount: artifactCountProp,
   onClick,
   isPrivate = false,
   isAdmin = false,
@@ -11,7 +12,7 @@ export default function CollectionFolder({
   onUpdate,
   collectionMeta,
 }) {
-  const artifactCount = collection.artifacts?.length ?? 0
+  const artifactCount = artifactCountProp ?? collection.artifacts?.length ?? 0
   const [showSettings, setShowSettings] = useState(false)
   const [imgError, setImgError] = useState(false)
 

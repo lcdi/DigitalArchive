@@ -4,7 +4,18 @@
       "Bash(npm install:*)",
       "Bash(npx vitest:*)",
       "Bash(npm test:*)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(npm rebuild *)",
+      "Bash(npm show *)",
+      "Bash(openssl rand *)",
+      "Bash(echo \"JWT_SECRET=$\\(openssl rand -hex 32\\)\")",
+      "Bash(node -e \"require\\('better-sqlite3'\\)\\(':memory:'\\); console.log\\('sqlite ok'\\)\")",
+      "Bash(node src/index.js)",
+      "Bash(curl -s http://localhost:3000/health)",
+      "Bash(curl -si http://localhost:3000/health)",
+      "Bash(curl -si http://localhost:3000/archives)",
+      "Bash(curl -si -X OPTIONS http://localhost:3000/archives -H \"Origin: http://localhost:5173\" -H \"Access-Control-Request-Method: GET\")",
+      "Bash(node *)"
     ]
   }
 }

@@ -1,38 +1,46 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import { api, setToken, clearToken } from '../utils/api'
 
 const AuthContext = createContext(null)
 
-// Decode the JWT payload Google returns — frontend only, not for security verification.
-function decodeGoogleJwt(token) {
-  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
-  return JSON.parse(atob(base64))
-}
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  // Legacy username/password login (any username = admin)
+  // On mount, restore session from localStorage if a token exists
+  useEffect(() => {
+    const token = localStorage.getItem('session_token')
+    if (!token) {
+      setLoading(false)
+      return
+    }
+    api.get('/users/me')
+      .then((u) => setUser({ ...u, provider: 'google' }))
+      .catch(() => clearToken())          // token expired or invalid — discard it
+      .finally(() => setLoading(false))
+  }, [])
+
+  // Legacy username/password login (kept for dev convenience until fully migrated)
   const login = (username) => {
     setUser({ username, role: 'admin', provider: 'local' })
   }
 
-  // Google OAuth login — credentialResponse comes from @react-oauth/google
-  const loginWithGoogle = (credentialResponse) => {
-    const profile = decodeGoogleJwt(credentialResponse.credential)
-    setUser({
-      username:  profile.name,
-      email:     profile.email,
-      picture:   profile.picture,
-      googleId:  profile.sub,
-      role:      'admin',
-      provider:  'google',
+  // Google OAuth login — sends the credential to the API for server-side verification
+  const loginWithGoogle = async (credentialResponse) => {
+    const { token, user: profile } = await api.post('/auth/google', {
+      credential: credentialResponse.credential,
     })
+    setToken(token)
+    setUser({ ...profile, provider: 'google' })
   }
 
-  const logout = () => setUser(null)
+  const logout = () => {
+    clearToken()
+    setUser(null)
+  }
 
   return (
-    <AuthContext.Provider value={{ user, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   )
