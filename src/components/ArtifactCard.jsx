@@ -1,5 +1,7 @@
+import { useState, useEffect, useRef } from 'react';
 import './ArtifactCard.css';
 import { downloadArtifact } from '../utils/downloadArtifact.js';
+import { buildCitation, CITATION_FORMATS } from '../utils/buildCitation.js';
 
 /**
  * ArtifactCard
@@ -8,6 +10,10 @@ import { downloadArtifact } from '../utils/downloadArtifact.js';
  * @prop {boolean}  isAdmin  – when false, hides private/IRB badges and pseudonym markers
  */
 function ArtifactCard({ artifact, onClick, isAdmin = false, canEdit = false, onEdit }) {
+    const [citationOpen, setCitationOpen] = useState(false);
+    const [copiedFormat, setCopiedFormat] = useState(null);
+    const citationRef = useRef(null);
+
     const handleDownload = async (e) => {
         e.stopPropagation();
         await downloadArtifact(artifact);
@@ -17,6 +23,35 @@ function ArtifactCard({ artifact, onClick, isAdmin = false, canEdit = false, onE
         e.stopPropagation();
         onEdit(artifact);
     };
+
+    const handleCitationToggle = (e) => {
+        e.stopPropagation();
+        setCitationOpen(prev => !prev);
+    };
+
+    const handleCopyFormat = (e, format) => {
+        e.stopPropagation();
+        const citation = buildCitation(artifact, format);
+        navigator.clipboard.writeText(citation).then(() => {
+            setCopiedFormat(format);
+            setTimeout(() => {
+                setCopiedFormat(null);
+                setCitationOpen(false);
+            }, 1500);
+        });
+    };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        if (!citationOpen) return;
+        const handleOutside = (e) => {
+            if (citationRef.current && !citationRef.current.contains(e.target)) {
+                setCitationOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleOutside);
+        return () => document.removeEventListener('mousedown', handleOutside);
+    }, [citationOpen]);
 
     // Viewers see the subject name as-is; the "(Pseudonym)" note is admin-only context
     const showPseudonymMarker = isAdmin && artifact.subject?.isPseudonym;
@@ -58,6 +93,33 @@ function ArtifactCard({ artifact, onClick, isAdmin = false, canEdit = false, onE
                                 </svg>
                             </button>
                         )}
+                        <div className="citation-wrapper" ref={citationRef}>
+                            <button
+                                className="artifact-icon-btn"
+                                onClick={handleCitationToggle}
+                                aria-label={`Copy citation for ${artifact.title}`}
+                                title="Copy Citation"
+                            >
+                                {/* Quote / citation icon */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+                                    <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+                                </svg>
+                            </button>
+                            {citationOpen && (
+                                <div className="citation-dropdown">
+                                    {CITATION_FORMATS.map(format => (
+                                        <button
+                                            key={format}
+                                            className="citation-format-btn"
+                                            onClick={(e) => handleCopyFormat(e, format)}
+                                        >
+                                            {copiedFormat === format ? '✓ Copied!' : format}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                         <button
                             className="artifact-icon-btn"
                             onClick={handleDownload}
