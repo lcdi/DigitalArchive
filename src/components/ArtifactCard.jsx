@@ -9,7 +9,7 @@ import { buildCitation, CITATION_FORMATS } from '../utils/buildCitation.js';
  * @prop {Function} onClick
  * @prop {boolean}  isAdmin  – when false, hides private/IRB badges and pseudonym markers
  */
-function ArtifactCard({ artifact, onClick, isAdmin = false, canEdit = false, onEdit }) {
+function ArtifactCard({ artifact, onClick, isAdmin = false, canEdit = false, onEdit, layout = 'list' }) {
     const [citationOpen, setCitationOpen] = useState(false);
     const [copiedFormat, setCopiedFormat] = useState(null);
     const citationRef = useRef(null);
