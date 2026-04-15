@@ -99,6 +99,14 @@
   font-size: 12px;
 }
 
+.site-user-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .site-signout-btn {
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.3);

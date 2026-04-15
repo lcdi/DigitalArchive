@@ -208,5 +208,30 @@ html, body {
   text-transform: lowercase;
 }
 
+/* ── Google Sign-In ─────────────────────────────────────── */
+.login-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.google-login-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 /* Future hero/bars styles will go here when we rebuild */
 

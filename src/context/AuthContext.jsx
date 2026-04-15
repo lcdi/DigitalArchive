@@ -2,18 +2,37 @@ import { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext(null)
 
+// Decode the JWT payload Google returns — frontend only, not for security verification.
+function decodeGoogleJwt(token) {
+  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+  return JSON.parse(atob(base64))
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
 
-  // Any valid login = admin. No role selection.
+  // Legacy username/password login (any username = admin)
   const login = (username) => {
-    setUser({ username, role: 'admin' })
+    setUser({ username, role: 'admin', provider: 'local' })
+  }
+
+  // Google OAuth login — credentialResponse comes from @react-oauth/google
+  const loginWithGoogle = (credentialResponse) => {
+    const profile = decodeGoogleJwt(credentialResponse.credential)
+    setUser({
+      username:  profile.name,
+      email:     profile.email,
+      picture:   profile.picture,
+      googleId:  profile.sub,
+      role:      'admin',
+      provider:  'google',
+    })
   }
 
   const logout = () => setUser(null)
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   )
@@ -25,7 +44,6 @@ export function useAuth() {
 
 export function usePermissions() {
   const { user } = useAuth()
-  // Logged-in = admin. Logged-out = read-only public viewer.
   const isAdmin = user !== null && user !== undefined
 
   return {
@@ -40,4 +58,3 @@ export function usePermissions() {
     canViewPseudonymContext: isAdmin,
   }
 }
-

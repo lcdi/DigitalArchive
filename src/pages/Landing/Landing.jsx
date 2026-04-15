@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../../context/AuthContext'
 import './Landing.css'
 
@@ -77,7 +78,7 @@ export default function Landing() {
   const rects = React.useMemo(() => generateRects(MAX_RECTS), [])
   const [count, setCount] = useState(() => getCount(window.innerWidth))
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, loginWithGoogle } = useAuth()
 
 
   useEffect(() => {
@@ -158,6 +159,25 @@ export default function Landing() {
         >
           Login
         </button>
+
+        <div className="login-divider">
+          <span>or</span>
+        </div>
+
+        <div className="google-login-wrapper">
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              loginWithGoogle(credentialResponse)
+              navigate('/archive')
+            }}
+            onError={() => console.error('Google sign-in failed')}
+            theme="filled_blue"
+            size="large"
+            width="380"
+            text="signin_with"
+            shape="rectangular"
+          />
+        </div>
       </div>
     </div>
   )
