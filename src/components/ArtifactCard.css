@@ -228,6 +228,36 @@
   font-size: 0.7rem;
 }
 
+/* ── Grid layout variant ── */
+.artifact-card--grid {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  min-height: unset;
+}
+
+.artifact-card--grid .artifact-image {
+  width: 100%;
+  height: 180px;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+.artifact-card--grid .artifact-info {
+  padding: 0.75rem 1rem 0.9rem;
+}
+
+.artifact-card--grid .artifact-header h3 {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* ── IRB badge ── */
 .irb-indicator {
   display: inline-flex;

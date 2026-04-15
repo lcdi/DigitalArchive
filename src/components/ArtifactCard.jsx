@@ -57,7 +57,7 @@ function ArtifactCard({ artifact, onClick, isAdmin = false, canEdit = false, onE
     const showPseudonymMarker = isAdmin && artifact.subject?.isPseudonym;
 
     return (
-        <div className="artifact-card" onClick={() => onClick(artifact)}>
+        <div className={`artifact-card${layout === 'grid' ? ' artifact-card--grid' : ''}`} onClick={() => onClick(artifact)}>
             <div className="artifact-image">
                 <img src={artifact.image} alt={artifact.title} />
                 {/* Media-type overlay for audio / video */}
