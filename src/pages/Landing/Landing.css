@@ -37,7 +37,7 @@ html, body {
   display: flex;
   flex-direction: row-reverse;
   gap: 0;
-  z-index: 9999;
+  z-index: 10;
   pointer-events: none;
 }
 
