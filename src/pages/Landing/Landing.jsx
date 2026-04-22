@@ -83,7 +83,7 @@ export default function Landing() {
   const rects = React.useMemo(() => generateRects(MAX_RECTS), [])
   const [count, setCount] = useState(() => getCount(window.innerWidth))
   const navigate = useNavigate()
-  const { login, loginWithGoogle } = useAuth()
+  const { user, login, loginWithGoogle } = useAuth()
 
   const headerRef = useRef(null)
   const rectContainerRef = useRef(null)
@@ -121,14 +121,17 @@ export default function Landing() {
     return () => ro.disconnect()
   }, [])
 
+  useEffect(() => {
+    if (user) navigate('/archive')
+  }, [user, navigate])
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
     if (!username || !password) return
-    login(username)
-    navigate('/archive')
+    await login()
   }
 
   const handleKeyDown = (e) => {
@@ -267,10 +270,7 @@ export default function Landing() {
 
           <div className="google-login-wrapper">
             <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                loginWithGoogle(credentialResponse)
-                navigate('/archive')
-              }}
+              onSuccess={loginWithGoogle}
               onError={() => console.error('Google sign-in failed')}
               theme="filled_blue"
               size="large"
