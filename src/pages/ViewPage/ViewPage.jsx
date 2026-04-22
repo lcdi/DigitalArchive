@@ -6,6 +6,7 @@ import ArtifactCard from '../../components/ArtifactCard'
 import FilterPanel from '../../components/FilterPanel'
 import DetailPanel from '../../components/DetailPanel'
 import MapView from '../../components/MapView'
+import TimelineView from '../../components/TimelineView'
 import { matchesSearch } from '../../utils/searchArtifacts'
 import './ViewPage.css'
 
@@ -184,6 +185,13 @@ export default function ViewPage() {
               ⊞ Cards
             </button>
             <button
+              className={`view-mode-btn ${viewMode === 'timeline' ? 'active' : ''}`}
+              onClick={() => setViewMode('timeline')}
+              aria-label="Timeline view"
+            >
+              ⏱ Timeline
+            </button>
+            <button
               className={`view-mode-btn ${viewMode === 'map' ? 'active' : ''}`}
               onClick={() => setViewMode('map')}
               aria-label="Map view"
@@ -202,9 +210,14 @@ export default function ViewPage() {
         </div>
       </header>
 
-      <div className={`view-body${viewMode === 'map' ? ' view-body--map' : ''}${viewMode === 'cards' && isFilterOpen ? ' filter-open' : ''}${viewMode === 'cards' && isDetailOpen ? ' detail-open' : ''}`}>
+      <div className={`view-body${viewMode === 'map' ? ' view-body--map' : ''}${viewMode === 'cards' && isFilterOpen ? ' filter-open' : ''}${viewMode === 'cards' && isDetailOpen ? ' detail-open' : ''}${viewMode === 'timeline' && isFilterOpen ? ' filter-open' : ''}${viewMode === 'timeline' && isDetailOpen ? ' detail-open' : ''}`}>
         {viewMode === 'map' ? (
           <MapView
+            artifacts={filteredArtifacts}
+            onArtifactClick={handleArtifactClick}
+          />
+        ) : viewMode === 'timeline' ? (
+          <TimelineView
             artifacts={filteredArtifacts}
             onArtifactClick={handleArtifactClick}
           />

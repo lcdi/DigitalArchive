@@ -15,7 +15,9 @@
       "Bash(curl -si http://localhost:3000/health)",
       "Bash(curl -si http://localhost:3000/archives)",
       "Bash(curl -si -X OPTIONS http://localhost:3000/archives -H \"Origin: http://localhost:5173\" -H \"Access-Control-Request-Method: GET\")",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(gh pr:*)",
+      "Bash(git add:*)"
     ]
   }
 }

@@ -1,5 +1,7 @@
+import { useState, useEffect, useRef } from 'react';
 import './ArtifactCard.css';
 import { downloadArtifact } from '../utils/downloadArtifact.js';
+import { buildCitation, CITATION_FORMATS } from '../utils/buildCitation.js';
 
 /**
  * ArtifactCard
@@ -7,17 +9,55 @@ import { downloadArtifact } from '../utils/downloadArtifact.js';
  * @prop {Function} onClick
  * @prop {boolean}  isAdmin  – when false, hides private/IRB badges and pseudonym markers
  */
-function ArtifactCard({ artifact, onClick, isAdmin = false }) {
+function ArtifactCard({ artifact, onClick, isAdmin = false, canEdit = false, onEdit, layout = 'list' }) {
+    const [citationOpen, setCitationOpen] = useState(false);
+    const [copiedFormat, setCopiedFormat] = useState(null);
+    const citationRef = useRef(null);
+
     const handleDownload = async (e) => {
         e.stopPropagation();
         await downloadArtifact(artifact);
     };
 
+    const handleEdit = (e) => {
+        e.stopPropagation();
+        onEdit(artifact);
+    };
+
+    const handleCitationToggle = (e) => {
+        e.stopPropagation();
+        setCitationOpen(prev => !prev);
+    };
+
+    const handleCopyFormat = (e, format) => {
+        e.stopPropagation();
+        const citation = buildCitation(artifact, format);
+        navigator.clipboard.writeText(citation).then(() => {
+            setCopiedFormat(format);
+            setTimeout(() => {
+                setCopiedFormat(null);
+                setCitationOpen(false);
+            }, 1500);
+        });
+    };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        if (!citationOpen) return;
+        const handleOutside = (e) => {
+            if (citationRef.current && !citationRef.current.contains(e.target)) {
+                setCitationOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleOutside);
+        return () => document.removeEventListener('mousedown', handleOutside);
+    }, [citationOpen]);
+
     // Viewers see the subject name as-is; the "(Pseudonym)" note is admin-only context
     const showPseudonymMarker = isAdmin && artifact.subject?.isPseudonym;
 
     return (
-        <div className="artifact-card" onClick={() => onClick(artifact)}>
+        <div className={`artifact-card${layout === 'grid' ? ' artifact-card--grid' : ''}`} onClick={() => onClick(artifact)}>
             <div className="artifact-image">
                 <img src={artifact.image} alt={artifact.title} />
                 {/* Media-type overlay for audio / video */}
@@ -38,13 +78,62 @@ function ArtifactCard({ artifact, onClick, isAdmin = false }) {
             <div className="artifact-info">
                 <div className="artifact-header">
                     <h3>{artifact.title}</h3>
-                    <button
-                        className="download-btn-card"
-                        onClick={handleDownload}
-                        aria-label={`Download ${artifact.title}`}
-                    >
-                        Download
-                    </button>
+                    <div className="artifact-actions">
+                        {canEdit && (
+                            <button
+                                className="artifact-icon-btn"
+                                onClick={handleEdit}
+                                aria-label={`Edit ${artifact.title}`}
+                                title="Edit"
+                            >
+                                {/* Pencil icon */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </button>
+                        )}
+                        <div className="citation-wrapper" ref={citationRef}>
+                            <button
+                                className="artifact-icon-btn"
+                                onClick={handleCitationToggle}
+                                aria-label={`Copy citation for ${artifact.title}`}
+                                title="Copy Citation"
+                            >
+                                {/* Quote / citation icon */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+                                    <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+                                </svg>
+                            </button>
+                            {citationOpen && (
+                                <div className="citation-dropdown">
+                                    {CITATION_FORMATS.map(format => (
+                                        <button
+                                            key={format}
+                                            className="citation-format-btn"
+                                            onClick={(e) => handleCopyFormat(e, format)}
+                                        >
+                                            {copiedFormat === format ? '✓ Copied!' : format}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <button
+                            className="artifact-icon-btn"
+                            onClick={handleDownload}
+                            aria-label={`Download ${artifact.title}`}
+                            title="Download"
+                        >
+                            {/* Download icon */}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Subject & Location Preview */}

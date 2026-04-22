@@ -28,6 +28,7 @@ function ArchivePage() {
   const [isNewCollectionModalOpen, setIsNewCollectionModalOpen] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState('')
   const [addTargetCollectionId, setAddTargetCollectionId] = useState(null)
+  const [editingArtifact, setEditingArtifact] = useState(null)
   const [copiedCollectionId, setCopiedCollectionId] = useState(null)
 
   const headerRef = useRef(null)
@@ -167,34 +168,45 @@ function ArchivePage() {
   }
 
   const handleSaveArtifact = async (newArtifact) => {
-    try {
-      const loc = newArtifact.location
-      const locationStr = typeof loc === 'object'
-        ? [loc.city, loc.state, loc.country].filter(Boolean).join(', ')
-        : (loc ?? '')
+    if (editingArtifact) {
+      setArtifacts(prev => prev.map(a => a.id === newArtifact.id ? newArtifact : a))
+      setSelectedArtifact(newArtifact)
+      setEditingArtifact(null)
+    } else {
+      try {
+        const loc = newArtifact.location
+        const locationStr = typeof loc === 'object'
+          ? [loc.city, loc.state, loc.country].filter(Boolean).join(', ')
+          : (loc ?? '')
 
-      const created = await api.post('/artifacts', {
-        title:       newArtifact.title,
-        type:        newArtifact.type,
-        description: newArtifact.description,
-        location:    locationStr,
-        is_private:  newArtifact.privacy?.publicAccess === false,
-        metadata:    newArtifact,
-      })
+        const created = await api.post('/artifacts', {
+          title:       newArtifact.title,
+          type:        newArtifact.type,
+          description: newArtifact.description,
+          location:    locationStr,
+          is_private:  newArtifact.privacy?.publicAccess === false,
+          metadata:    newArtifact,
+        })
 
-      const targetArchiveId = addTargetCollectionId ?? activeCollection?.id
-      if (targetArchiveId) {
-        await api.post(`/archives/${targetArchiveId}/artifacts`, { artifact_id: created.id })
+        const targetArchiveId = addTargetCollectionId ?? activeCollection?.id
+        if (targetArchiveId) {
+          await api.post(`/archives/${targetArchiveId}/artifacts`, { artifact_id: created.id })
+        }
+
+        setArtifacts(prev => [created, ...prev])
+        setArchives(prev => prev.map(a =>
+          a.id === targetArchiveId ? { ...a, artifact_count: (a.artifact_count || 0) + 1 } : a
+        ))
+      } catch (err) {
+        console.error('Failed to save artifact:', err)
       }
-
-      setArtifacts(prev => [created, ...prev])
-      setArchives(prev => prev.map(a =>
-        a.id === targetArchiveId ? { ...a, artifact_count: (a.artifact_count || 0) + 1 } : a
-      ))
-    } catch (err) {
-      console.error('Failed to save artifact:', err)
     }
     setIsAddModalOpen(false)
+  }
+
+  const handleEditArtifact = (artifact) => {
+    setEditingArtifact(artifact)
+    setIsAddModalOpen(true)
   }
 
   const handleOpenCollection = (collection) => {
@@ -327,6 +339,8 @@ function ArchivePage() {
                     artifact={artifact}
                     onClick={handleArtifactClick}
                     isAdmin={perms.isAdmin}
+                    canEdit={perms.canEditArtifacts}
+                    onEdit={handleEditArtifact}
                   />
                 ))
               ) : (
@@ -349,10 +363,11 @@ function ArchivePage() {
       {perms.canAddArtifacts && (
         <AddArtifactModal
           isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
+          onClose={() => { setIsAddModalOpen(false); setEditingArtifact(null) }}
           onSave={handleSaveArtifact}
           collections={archives}
           targetCollectionId={addTargetCollectionId}
+          artifact={editingArtifact}
         />
       )}
 
