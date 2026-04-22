@@ -8,7 +8,9 @@ import SiteFooter from './components/SiteFooter'
 import './App.css'
 
 function ProtectedRoute({ children }) {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
+  // Wait for session restoration from localStorage before deciding to redirect
+  if (loading) return null
   if (!user) return <Navigate to="/" replace />
   return children
 }

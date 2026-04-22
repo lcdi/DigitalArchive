@@ -31,7 +31,17 @@ export default function SiteHeader() {
         {user ? (
           <>
             <span className="site-user-badge" aria-label={`Signed in as ${user.username}`}>
-              <span className="site-user-icon" aria-hidden>✏️</span>
+              {user.picture ? (
+                <img
+                  className="site-user-avatar"
+                  src={user.picture}
+                  alt=""
+                  aria-hidden
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span className="site-user-icon" aria-hidden>✏️</span>
+              )}
               {user.username}
             </span>
             <button className="site-signout-btn" onClick={handleLogout}>

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from '../src/context/AuthContext'
 import Landing from '../src/pages/Landing/Landing'
 
@@ -63,11 +64,13 @@ beforeEach(() => {
 
 function renderLanding() {
   render(
-    <MemoryRouter>
-      <AuthProvider>
-        <Landing />
-      </AuthProvider>
-    </MemoryRouter>
+    <GoogleOAuthProvider clientId="test-client-id">
+      <MemoryRouter>
+        <AuthProvider>
+          <Landing />
+        </AuthProvider>
+      </MemoryRouter>
+    </GoogleOAuthProvider>
   )
 }
 

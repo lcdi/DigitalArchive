@@ -251,3 +251,19 @@ html, body {
   .landing-input { width: 110px; }
   .landing-login-row { gap: 7px; }
 }
+
+/* ── Google Sign-In ── */
+.login-divider {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.google-login-wrapper {
+  display: flex;
+  align-items: center;
+}
