@@ -17,7 +17,8 @@
       "Bash(curl -si -X OPTIONS http://localhost:3000/archives -H \"Origin: http://localhost:5173\" -H \"Access-Control-Request-Method: GET\")",
       "Bash(node *)",
       "Bash(gh pr:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(xargs grep *)"
     ]
   }
 }
