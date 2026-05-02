@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../../context/AuthContext'
-import { artifacts as allArtifacts } from '../../data/artifacts'
+import { api } from '../../utils/api'
 import FilterPanel from '../../components/FilterPanel'
 import ArtifactCard from '../../components/ArtifactCard'
 import DetailPanel from '../../components/DetailPanel'
@@ -83,7 +83,7 @@ export default function Landing() {
   const rects = React.useMemo(() => generateRects(MAX_RECTS), [])
   const [count, setCount] = useState(() => getCount(window.innerWidth))
   const navigate = useNavigate()
-  const { login, loginWithGoogle } = useAuth()
+  const { user, login, loginWithGoogle } = useAuth()
 
   const headerRef = useRef(null)
   const rectContainerRef = useRef(null)
@@ -121,19 +121,28 @@ export default function Landing() {
     return () => ro.disconnect()
   }, [])
 
+  useEffect(() => {
+    if (user) navigate('/archive')
+  }, [user, navigate])
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
     if (!username || !password) return
-    login(username)
-    navigate('/archive')
+    await login()
   }
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleLogin(e)
   }
+
+  // ── Artifact data from API ──
+  const [publicArtifacts, setPublicArtifacts] = useState([])
+  useEffect(() => {
+    api.get('/artifacts').then(setPublicArtifacts).catch(() => setPublicArtifacts([]))
+  }, [])
 
   // ── Filter state ──
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -146,12 +155,6 @@ export default function Landing() {
     dateRange: { start: '', end: '' },
     searchQuery: '',
   })
-
-  // Only show artifacts where publicAccess is not explicitly false
-  const publicArtifacts = useMemo(() =>
-    allArtifacts.filter(a => a.privacy?.publicAccess !== false),
-    []
-  )
 
   const filterOptions = useMemo(() => ({
     tags:      [...new Set(publicArtifacts.flatMap(a => a.tags ?? []))],
@@ -267,10 +270,7 @@ export default function Landing() {
 
           <div className="google-login-wrapper">
             <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                loginWithGoogle(credentialResponse)
-                navigate('/archive')
-              }}
+              onSuccess={loginWithGoogle}
               onError={() => console.error('Google sign-in failed')}
               theme="filled_blue"
               size="large"

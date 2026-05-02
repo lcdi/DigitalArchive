@@ -20,9 +20,11 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [])
 
-  // Legacy username/password login (kept for dev convenience until fully migrated)
-  const login = (username) => {
-    setUser({ username, role: 'admin', provider: 'local' })
+  // Dev login — calls /auth/dev to get a real JWT for the seed user
+  const login = async () => {
+    const { token, user: profile } = await api.post('/auth/dev', {})
+    setToken(token)
+    setUser({ ...profile, provider: 'local' })
   }
 
   // Google OAuth login — sends the credential to the API for server-side verification

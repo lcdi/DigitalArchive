@@ -17,7 +17,17 @@
       "Bash(curl -si -X OPTIONS http://localhost:3000/archives -H \"Origin: http://localhost:5173\" -H \"Access-Control-Request-Method: GET\")",
       "Bash(node *)",
       "Bash(gh pr:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(xargs grep *)",
+      "Bash(mkdir -p /mnt/sdb/code/backstory-db/seed-assets/artifacts)",
+      "Bash(cp /mnt/sdb/code/Leahy-Center-archiving-tool/src/assets/artifacts/* /mnt/sdb/code/backstory-db/seed-assets/artifacts/)",
+      "Bash(curl -s http://localhost:3000/artifacts)",
+      "Bash(curl -s http://localhost:3000/artifacts/1)",
+      "Bash(curl -s -o /dev/null -w \"thumbnail status: %{http_code} size: %{size_download}b\\\\n\" http://localhost:3000/artifacts/1/file/thumbnail)",
+      "Bash(curl -s -o /dev/null -w \"media status: %{http_code}\\\\n\" http://localhost:3000/artifacts/4/file/media)",
+      "Bash(curl -s -o /dev/null -w \"private thumbnail \\(no auth\\): %{http_code}\\\\n\" http://localhost:3000/artifacts/3/file/thumbnail)",
+      "Bash(curl -s -o /dev/null -w \"private artifact JSON \\(no auth\\): %{http_code}\\\\n\" http://localhost:3000/artifacts/3)",
+      "Bash(pkill -f \"node src/index.js\")"
     ]
   }
 }
