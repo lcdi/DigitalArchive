@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../../context/AuthContext'
-import { artifacts as allArtifacts } from '../../data/artifacts'
+import { api } from '../../utils/api'
 import FilterPanel from '../../components/FilterPanel'
 import ArtifactCard from '../../components/ArtifactCard'
 import DetailPanel from '../../components/DetailPanel'
@@ -138,6 +138,12 @@ export default function Landing() {
     if (e.key === 'Enter') handleLogin(e)
   }
 
+  // ── Artifact data from API ──
+  const [publicArtifacts, setPublicArtifacts] = useState([])
+  useEffect(() => {
+    api.get('/artifacts').then(setPublicArtifacts).catch(() => setPublicArtifacts([]))
+  }, [])
+
   // ── Filter state ──
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
@@ -149,12 +155,6 @@ export default function Landing() {
     dateRange: { start: '', end: '' },
     searchQuery: '',
   })
-
-  // Only show artifacts where publicAccess is not explicitly false
-  const publicArtifacts = useMemo(() =>
-    allArtifacts.filter(a => a.privacy?.publicAccess !== false),
-    []
-  )
 
   const filterOptions = useMemo(() => ({
     tags:      [...new Set(publicArtifacts.flatMap(a => a.tags ?? []))],

@@ -10,13 +10,13 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       FRONTEND_URL: http://localhost
     volumes:
-      - ../backstory-db/dev.db:/app/dev.db
+      - backstory-data:/app/data
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 15s
+      start_period: 30s
 
   frontend:
     build:
@@ -30,3 +30,5 @@ services:
       backend:
         condition: service_healthy
 
+volumes:
+  backstory-data:

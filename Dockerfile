@@ -5,7 +5,6 @@ RUN npm ci
 COPY . .
 ARG VITE_GOOGLE_CLIENT_ID
 ARG VITE_API_URL=http://localhost:3000
-RUN mkdir -p public/src && cp -r src/assets public/src/assets
 RUN npm run build
 
 FROM nginx:alpine
